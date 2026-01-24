@@ -20,33 +20,33 @@ export default function Home() {
 
   useEffect(() => {
     if (userProfile?._id) {
-      console.log("📤 Socket: Joining private room:", userProfile._id);
       socket.emit("join_self", userProfile._id);
     }
 
     socket.on("acceptInvitation", (data) => {
-      console.log("📩 Invitation received:", data);
       setSenderData(data);
       setIsInvitationOpen(true);
     });
 
-    socket.on("join_lobby", (data) => {
+    socket.on("join_lobby", (data: any) => {
       setIsFriendsOpen(false);
       setIsLobbyOpen(true);
       setLobbyData(data);
     });
 
+    socket.on("lobby_disbanded", () => {
+      setIsLobbyOpen(false);
+      setLobbyData(null);
+    });
+
     return () => {
       socket.off("acceptInvitation");
       socket.off("join_lobby");
+      socket.off("lobby_disbanded");
     };
   }, [userProfile]);
 
   const handleAcceptInvitation = () => {
-    console.log("📤 Emitting accepted with:", {
-      acceptedUserInfo: userProfile,
-      senderUserInfo: senderData?.senderInfo,
-    });
     socket.emit("accepted", {
       acceptedUserInfo: userProfile,
       senderUserInfo: senderData?.senderInfo,
@@ -186,6 +186,11 @@ export default function Home() {
             <BattleLobby
               player1={lobbyData.senderUserInfo}
               player2={lobbyData.acceptedUserInfo}
+              battleRoomId={lobbyData.battleRoomId}
+              onLeave={() => {
+                setIsLobbyOpen(false);
+                setLobbyData(null);
+              }}
             />
           ) : (
             <PlayerInfo />

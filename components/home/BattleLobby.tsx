@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { User, Sword, Shield, Zap } from "lucide-react";
+import { socket } from "@/lib/socket";
 
 export interface LobbyPlayer {
   _id: string;
@@ -17,15 +18,27 @@ export interface LobbyPlayer {
 interface BattleLobbyProps {
   player1: LobbyPlayer;
   player2: LobbyPlayer;
+  battleRoomId: string;
+  onLeave: () => void;
   onStartBattle?: () => void;
 }
+
+import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 
 export default function BattleLobby({
   player1,
   player2,
+  battleRoomId,
   onStartBattle,
+  onLeave,
 }: BattleLobbyProps) {
-  const leaveTeam = () => {};
+  const { data: me } = useGetMeQuery(undefined);
+
+  const leaveTeam = () => {
+    const opponentId = me?._id === player1._id ? player2._id : player1._id;
+    socket.emit("leave_lobby", { opponentId, battleRoomId });
+    onLeave();
+  };
 
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center p-2 sm:p-4">

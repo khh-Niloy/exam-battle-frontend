@@ -21,7 +21,6 @@ export default function FriendsSidebar({
   });
 
   const handleSendInvitation = (friend: any) => {
-    console.log("test");
     socket.emit("invitation", {
       receiverFriendId: friend._id,
       senderInfo: user,
