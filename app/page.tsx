@@ -8,9 +8,13 @@ import Image from "next/image";
 import { User } from "lucide-react";
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 import BattleLobby from "@/components/home/BattleLobby";
+import MapSelectorButton from "@/components/home/MapSelectorButton";
+import QuestionPaperModal from "@/components/home/QuestionPaperModal";
 
 export default function Home() {
   const [isFriendsOpen, setIsFriendsOpen] = useState(false);
+  const [isQuestionPaperOpen, setIsQuestionPaperOpen] = useState(false);
+  const [selectedPaper, setSelectedPaper] = useState<any>(null);
   const [isInvitationOpen, setIsInvitationOpen] = useState(false);
   const [senderData, setSenderData] = useState<any>(null);
   const [isAccept, setIsAccept] = useState(false);
@@ -32,6 +36,9 @@ export default function Home() {
       setIsFriendsOpen(false);
       setIsLobbyOpen(true);
       setLobbyData(data);
+      if (data.selectedPaper) {
+        setSelectedPaper(data.selectedPaper);
+      }
     });
 
     socket.on("lobby_disbanded", () => {
@@ -50,6 +57,7 @@ export default function Home() {
     socket.emit("accepted", {
       acceptedUserInfo: userProfile,
       senderUserInfo: senderData?.senderInfo,
+      selectedPaper: senderData?.selectedPaper,
     });
     setIsAccept(true);
     setIsInvitationOpen(false);
@@ -58,7 +66,7 @@ export default function Home() {
   const friend = senderData?.senderInfo;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-black flex items-center justify-center p-6 sm:p-12 overflow-hidden">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0a0a0a] flex items-center justify-center p-6 sm:p-12 overflow-hidden">
       <AnimatePresence mode="wait">
         {isInvitationOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none p-4">
@@ -85,7 +93,7 @@ export default function Home() {
               className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-3xl border border-white/20 dark:border-zinc-800 p-8 rounded-[3rem] text-center shadow-[0_40px_100px_rgba(0,0,0,0.2)] pointer-events-auto max-w-sm w-full relative overflow-hidden"
             >
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#4088FD]/10 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-2 -left-2 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
 
               <motion.div
                 animate={{
@@ -162,20 +170,6 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="w-full max-w-5xl flex flex-col items-center gap-12">
-        <div className="text-center space-y-2">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-2"
-          >
-            <div className="px-4 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-100 dark:border-blue-800">
-              <span className="text-[10px] font-black text-[#4088FD] uppercase tracking-[0.3em]">
-                Live Battle Network
-              </span>
-            </div>
-          </motion.div>
-        </div>
-
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -187,6 +181,7 @@ export default function Home() {
               player1={lobbyData.senderUserInfo}
               player2={lobbyData.acceptedUserInfo}
               battleRoomId={lobbyData.battleRoomId}
+              selectedPaper={selectedPaper}
               onLeave={() => {
                 setIsLobbyOpen(false);
                 setLobbyData(null);
@@ -198,31 +193,41 @@ export default function Home() {
         </motion.div>
 
         {!isLobbyOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="w-full max-w-md mx-auto"
-          >
-            <button
-              onClick={() => setIsFriendsOpen(true)}
-              className="group w-full bg-[#4088FD] text-white py-5 px-8 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 active:scale-95 flex items-center justify-between"
+          <div className="w-full max-w-xl mx-auto space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex justify-center pt-4"
             >
-              <span className="opacity-0 w-4 group-hover:opacity-100 transition-opacity">
-                🔥
-              </span>
-              <span>My Friends</span>
-              <span className="opacity-0 w-4 group-hover:opacity-100 transition-opacity">
-                🔥
-              </span>
-            </button>
-          </motion.div>
+              <button
+                onClick={() => setIsFriendsOpen(true)}
+                className="group inline-flex items-center gap-4 bg-blue-500 dark:bg-zinc-900 border border-gray-100 dark:border-white/10 py-3 px-8 rounded-full font-bold text-xs text-white dark:text-zinc-400 transition-all hover:border-[#4088FD] hover:text-[#4088FD] active:scale-95 shadow-md shadow-black/5"
+              >
+                <span>Show Battle Buddies</span>
+                <div className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-[#4088FD] group-hover:text-white transition-all text-white">
+                  <User className="w-3 h-3" />
+                </div>
+              </button>
+            </motion.div>
+            <MapSelectorButton
+              selectedPaper={selectedPaper}
+              onClick={() => setIsQuestionPaperOpen(true)}
+            />
+          </div>
         )}
       </main>
 
       <FriendsSidebar
         isOpen={isFriendsOpen}
         onClose={() => setIsFriendsOpen(false)}
+        selectedPaper={selectedPaper}
+      />
+
+      <QuestionPaperModal
+        isOpen={isQuestionPaperOpen}
+        onClose={() => setIsQuestionPaperOpen(false)}
+        onSelect={(paper) => setSelectedPaper(paper)}
       />
     </div>
   );

@@ -9,9 +9,11 @@ import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 export default function FriendsSidebar({
   isOpen,
   onClose,
+  selectedPaper,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  selectedPaper: any | null;
 }) {
   const { data: friends, isLoading } = useGetFriendsQuery(undefined, {
     skip: !isOpen,
@@ -24,6 +26,7 @@ export default function FriendsSidebar({
     socket.emit("invitation", {
       receiverFriendId: friend._id,
       senderInfo: user,
+      selectedPaper, // Include the selected arena
     });
   };
 

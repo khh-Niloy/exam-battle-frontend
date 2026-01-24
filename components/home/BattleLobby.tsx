@@ -19,6 +19,7 @@ interface BattleLobbyProps {
   player1: LobbyPlayer;
   player2: LobbyPlayer;
   battleRoomId: string;
+  selectedPaper: any | null;
   onLeave: () => void;
   onStartBattle?: () => void;
 }
@@ -29,6 +30,7 @@ export default function BattleLobby({
   player1,
   player2,
   battleRoomId,
+  selectedPaper,
   onStartBattle,
   onLeave,
 }: BattleLobbyProps) {
@@ -48,14 +50,17 @@ export default function BattleLobby({
         animate={{ opacity: 1, y: 0 }}
         className="mb-6 sm:mb-12 text-center"
       >
-        <div className="inline-block px-4 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full mb-2 sm:mb-4">
-          <span className="text-[10px] sm:text-sm font-black text-yellow-500 uppercase tracking-[0.2em] sm:tracking-[0.3em]">
-            Match Ready
-          </span>
+        <div className="relative flex-1 px-5 flex flex-col justify-center gap-0.5 text-center">
+          <h2 className="text-lg font-black text-zinc-900 uppercase italic tracking-tighter leading-tight group-hover:text-blue-600 transition-colors">
+            {selectedPaper?.examName || "Select Arena"}
+          </h2>
+
+          <p className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest mt-1">
+            {selectedPaper
+              ? `${selectedPaper.questionIds?.length || 0} Quests Ready`
+              : "Tap to change battlefield"}
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">
-          Preparing Arena
-        </h1>
       </motion.div>
 
       {/* Players Container - Side-by-side on mobile */}
