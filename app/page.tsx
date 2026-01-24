@@ -1,31 +1,218 @@
 "use client";
 import PlayerInfo from "@/components/home/PlayerInfo";
 import FriendsSidebar from "@/components/home/FriendsSidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { socket } from "@/lib/socket";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { User } from "lucide-react";
+import { useGetMeQuery } from "@/redux/features/auth/auth.api";
+import BattleLobby from "@/components/home/BattleLobby";
 
 export default function Home() {
   const [isFriendsOpen, setIsFriendsOpen] = useState(false);
+  const [isInvitationOpen, setIsInvitationOpen] = useState(false);
+  const [senderData, setSenderData] = useState<any>(null);
+  const [isAccept, setIsAccept] = useState(false);
+  const [isLobbyOpen, setIsLobbyOpen] = useState(false);
+  const [lobbyData, setLobbyData] = useState<any>(null);
+  const { data: userProfile } = useGetMeQuery(undefined);
+
+  useEffect(() => {
+    if (userProfile?._id) {
+      console.log("📤 Socket: Joining private room:", userProfile._id);
+      socket.emit("join_self", userProfile._id);
+    }
+
+    socket.on("acceptInvitation", (data) => {
+      console.log("📩 Invitation received:", data);
+      setSenderData(data);
+      setIsInvitationOpen(true);
+    });
+
+    socket.on("join_lobby", (data) => {
+      setIsFriendsOpen(false);
+      setIsLobbyOpen(true);
+      setLobbyData(data);
+    });
+
+    return () => {
+      socket.off("acceptInvitation");
+      socket.off("join_lobby");
+    };
+  }, [userProfile]);
+
+  const handleAcceptInvitation = () => {
+    console.log("📤 Emitting accepted with:", {
+      acceptedUserInfo: userProfile,
+      senderUserInfo: senderData?.senderInfo,
+    });
+    socket.emit("accepted", {
+      acceptedUserInfo: userProfile,
+      senderUserInfo: senderData?.senderInfo,
+    });
+    setIsAccept(true);
+    setIsInvitationOpen(false);
+  };
+
+  const friend = senderData?.senderInfo;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-black flex items-center justify-center p-6 sm:p-12">
-      <main className="w-full max-w-4xl flex flex-col items-center gap-12">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-black flex items-center justify-center p-6 sm:p-12 overflow-hidden">
+      <AnimatePresence mode="wait">
+        {isInvitationOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5, y: 100, rotate: -5 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                rotate: 0,
+                transition: {
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 15,
+                },
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.5,
+                y: 100,
+                rotate: 5,
+                transition: { duration: 0.2 },
+              }}
+              className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-3xl border border-white/20 dark:border-zinc-800 p-8 rounded-[3rem] text-center shadow-[0_40px_100px_rgba(0,0,0,0.2)] pointer-events-auto max-w-sm w-full relative overflow-hidden"
+            >
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#4088FD]/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
+
+              <motion.div
+                animate={{
+                  y: [0, -10, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="relative z-10"
+              >
+                <div className="relative w-24 h-24 mx-auto mb-6 group">
+                  <div className="absolute inset-0 bg-blue-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
+                  <div className="relative w-full h-full bg-gradient-to-br from-[#4088FD] to-[#3a7bd5] rounded-3xl flex items-center justify-center shadow-lg overflow-hidden border-4 border-white dark:border-zinc-800">
+                    {friend?.image ? (
+                      <Image
+                        src={friend.image}
+                        alt={friend.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <User className="w-10 h-10 text-white" />
+                    )}
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-2xl border-4 border-white dark:border-zinc-900 flex items-center justify-center">
+                    <span className="text-xs">⚔️</span>
+                  </div>
+                </div>
+
+                <h1 className="text-[10px] font-black text-[#4088FD] uppercase tracking-[0.4em] mb-2">
+                  Battle Request
+                </h1>
+                <h2 className="text-2xl font-black text-zinc-800 dark:text-white mb-1">
+                  {friend?.name || "Player One"}
+                </h2>
+                {friend?.studentInfo && (
+                  <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
+                    Class {friend.studentInfo.class} •{" "}
+                    {friend.studentInfo.group}
+                  </p>
+                )}
+
+                <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-8 text-sm">
+                  Is challenging you to a knowledge battle! Do you accept?
+                </p>
+              </motion.div>
+
+              <div className="flex flex-col gap-3 relative z-10">
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setIsInvitationOpen(false);
+                    handleAcceptInvitation();
+                  }}
+                  className="w-full bg-[#4088FD] text-white py-4 px-8 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#3a7bd5] transition-colors shadow-xl shadow-blue-500/25 active:scale-95"
+                >
+                  Accept & Battle
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsInvitationOpen(false)}
+                  className="w-full bg-transparent text-zinc-400 dark:text-zinc-500 py-3 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:text-red-500 transition-colors active:scale-95"
+                >
+                  Maybe later
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <main className="w-full max-w-5xl flex flex-col items-center gap-12">
         <div className="text-center space-y-2">
-          <h1 className="text-sm font-black text-[#4088FD] uppercase tracking-[0.3em]">
-            Battle Station
-          </h1>
-          <p className="text-gray-400 font-bold">Welcome to your dashboard</p>
-        </div>
-
-        <PlayerInfo />
-
-        <div className="w-full max-w-md mx-auto">
-          <button
-            onClick={() => setIsFriendsOpen(true)}
-            className="w-full bg-[#4088FD] text-white py-4 px-6 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#3a7bd5] transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center gap-2"
           >
-            My Friends
-          </button>
+            <div className="px-4 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-100 dark:border-blue-800">
+              <span className="text-[10px] font-black text-[#4088FD] uppercase tracking-[0.3em]">
+                Live Battle Network
+              </span>
+            </div>
+          </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="w-full"
+        >
+          {isLobbyOpen ? (
+            <BattleLobby
+              player1={lobbyData.senderUserInfo}
+              player2={lobbyData.acceptedUserInfo}
+            />
+          ) : (
+            <PlayerInfo />
+          )}
+        </motion.div>
+
+        {!isLobbyOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="w-full max-w-md mx-auto"
+          >
+            <button
+              onClick={() => setIsFriendsOpen(true)}
+              className="group w-full bg-[#4088FD] text-white py-5 px-8 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 active:scale-95 flex items-center justify-between"
+            >
+              <span className="opacity-0 w-4 group-hover:opacity-100 transition-opacity">
+                🔥
+              </span>
+              <span>My Friends</span>
+              <span className="opacity-0 w-4 group-hover:opacity-100 transition-opacity">
+                🔥
+              </span>
+            </button>
+          </motion.div>
+        )}
       </main>
 
       <FriendsSidebar

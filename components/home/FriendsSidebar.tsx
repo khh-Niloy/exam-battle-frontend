@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Sword, Loader2 } from "lucide-react";
 import { useGetFriendsQuery } from "@/redux/features/user/user.api";
 import Image from "next/image";
+import { socket } from "@/lib/socket";
+import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 
 export default function FriendsSidebar({
   isOpen,
@@ -12,11 +14,18 @@ export default function FriendsSidebar({
   onClose: () => void;
 }) {
   const { data: friends, isLoading } = useGetFriendsQuery(undefined, {
-    skip: !isOpen, // Only fetch when open
+    skip: !isOpen,
+  });
+  const { data: user } = useGetMeQuery(undefined, {
+    skip: !isOpen,
   });
 
   const handleSendInvitation = (friend: any) => {
-    console.log("Invitation sent to:", friend.name);
+    console.log("test");
+    socket.emit("invitation", {
+      receiverFriendId: friend._id,
+      senderInfo: user,
+    });
   };
 
   return (
@@ -54,7 +63,7 @@ export default function FriendsSidebar({
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all text-gray-400 hover:text-gray-900 dark:hover:text-white active:scale-95"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -112,7 +121,7 @@ export default function FriendsSidebar({
                     <div className="flex gap-1 transition-opacity">
                       <button
                         onClick={() => handleSendInvitation(friend)}
-                        className="px-3 py-1.5 bg-[#4088FD] text-white rounded-lg text-xs font-bold hover:bg-[#3a7bd5] transition-all shadow-lg shadow-blue-500/20"
+                        className="px-3 py-1.5 bg-[#4088FD] text-white rounded-lg text-xs font-bold hover:bg-[#3a7bd5] transition-all shadow-lg shadow-blue-500/20 active:scale-95"
                       >
                         Send Invitation
                       </button>

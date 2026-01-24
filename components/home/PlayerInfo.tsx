@@ -2,9 +2,15 @@
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 import { User, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useEffect } from "react";
+import { socket } from "@/lib/socket";
 
 export default function PlayerInfo() {
   const { data: user, isLoading, error } = useGetMeQuery(undefined);
+
+  useEffect(() => {
+    socket.emit("join_self", user?._id);
+  }, [user]);
 
   if (isLoading) {
     return (
