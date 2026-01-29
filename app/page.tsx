@@ -46,10 +46,18 @@ export default function Home() {
       setLobbyData(null);
     });
 
+    socket.on("arena_updated", (data: any) => {
+      setLobbyData(data);
+      if (data.selectedPaper) {
+        setSelectedPaper(data.selectedPaper);
+      }
+    });
+
     return () => {
       socket.off("acceptInvitation");
       socket.off("join_lobby");
       socket.off("lobby_disbanded");
+      socket.off("arena_updated");
     };
   }, [userProfile]);
 
@@ -61,6 +69,14 @@ export default function Home() {
     });
     setIsAccept(true);
     setIsInvitationOpen(false);
+  };
+
+  const handleUpdateArena = (paper: any) => {
+    if (!isLobbyOpen) return;
+    socket.emit("update_arena", {
+      ...lobbyData,
+      selectedPaper: paper,
+    });
   };
 
   const friend = senderData?.senderInfo;
@@ -182,6 +198,7 @@ export default function Home() {
               player2={lobbyData.acceptedUserInfo}
               battleRoomId={lobbyData.battleRoomId}
               selectedPaper={selectedPaper}
+              onSelectArena={() => setIsQuestionPaperOpen(true)}
               onLeave={() => {
                 setIsLobbyOpen(false);
                 setLobbyData(null);
@@ -225,6 +242,7 @@ export default function Home() {
       />
 
       <QuestionPaperModal
+        handleUpdateArena={handleUpdateArena}
         isOpen={isQuestionPaperOpen}
         onClose={() => setIsQuestionPaperOpen(false)}
         onSelect={(paper) => setSelectedPaper(paper)}

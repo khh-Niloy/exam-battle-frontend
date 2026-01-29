@@ -7,10 +7,12 @@ export default function QuestionPaperModal({
   isOpen,
   onClose,
   onSelect,
+  handleUpdateArena,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (paper: any) => void;
+  handleUpdateArena: (paper: any) => void;
 }) {
   const { data: papers, isLoading } = useGetAllQuestionPapersQuery(undefined, {
     skip: !isOpen,
@@ -19,7 +21,10 @@ export default function QuestionPaperModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div
+          key="modal-root"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        >
           {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -76,13 +81,14 @@ export default function QuestionPaperModal({
                   </p>
                 </div>
               ) : (
-                papers?.map((paper: any) => (
+                papers?.map((paper: any, index: number) => (
                   <motion.button
-                    key={paper._id}
+                    key={paper._id || index}
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       onSelect(paper);
+                      handleUpdateArena(paper);
                       onClose();
                     }}
                     className="group relative w-full rounded-2xl p-4 transition-all bg-zinc-50 hover:bg-white border border-transparent hover:border-blue-100 hover:shadow-lg hover:shadow-blue-500/5 text-left flex items-center gap-4"
