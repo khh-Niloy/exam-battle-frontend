@@ -22,6 +22,7 @@ interface BattleLobbyProps {
   selectedPaper: any | null;
   onLeave: () => void;
   onStartBattle?: () => void;
+  onSelectArena?: () => void;
 }
 
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
@@ -33,6 +34,7 @@ export default function BattleLobby({
   selectedPaper,
   onStartBattle,
   onLeave,
+  onSelectArena,
 }: BattleLobbyProps) {
   const { data: me } = useGetMeQuery(undefined);
 
@@ -44,11 +46,13 @@ export default function BattleLobby({
 
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center p-2 sm:p-4">
-      {/* Header Info - Tightened */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 sm:mb-12 text-center"
+        onClick={() => {
+          onSelectArena?.();
+        }}
+        className="cursor-pointer mb-6 sm:mb-12 text-center group relative w-full h-[100px] bg-white rounded-3xl overflow-hidden shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-stretch transition-all hover:shadow-[0_20px_40px_-10px_rgba(64,136,253,0.15)] hover:border-blue-100"
       >
         <div className="relative flex-1 px-5 flex flex-col justify-center gap-0.5 text-center">
           <h2 className="text-lg font-black text-zinc-900 uppercase italic tracking-tighter leading-tight group-hover:text-blue-600 transition-colors">
@@ -163,10 +167,10 @@ function PlayerCard({
           <div
             className={`absolute inset-0 bg-gradient-to-b from-transparent to-${isBlue ? "blue" : "red"}-500/20 z-10`}
           />
-          {player.image ? (
+          {player?.image ? (
             <Image
-              src={player.image}
-              alt={player.name}
+              src={player?.image}
+              alt={player?.name}
               fill
               className="object-cover"
             />
@@ -193,7 +197,7 @@ function PlayerCard({
           className={`mt-2 sm:mt-6 w-full ${side === "right" ? "text-right" : "text-left"}`}
         >
           <h2 className="text-xs sm:text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter truncate">
-            {player.name}
+            {player?.name}
           </h2>
           <div
             className={`flex items-center gap-1 sm:gap-2 ${side === "right" ? "justify-end" : "justify-start"}`}
@@ -202,8 +206,8 @@ function PlayerCard({
               className={`w-1 h-1 sm:w-2 sm:h-2 rounded-full ${isBlue ? "bg-blue-500" : "bg-red-500"} animate-pulse`}
             />
             <p className="text-zinc-400 font-bold uppercase tracking-widest text-[6px] sm:text-[10px] truncate max-w-[80%]">
-              {player.studentInfo?.class
-                ? `Cl ${player.studentInfo.class} • ${player.studentInfo.group}`
+              {player?.studentInfo?.class
+                ? `Cl ${player?.studentInfo?.class} • ${player?.studentInfo?.group}`
                 : "Challenger"}
             </p>
           </div>
