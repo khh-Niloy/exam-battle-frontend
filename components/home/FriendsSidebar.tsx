@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Sword, Loader2 } from "lucide-react";
 import { useGetFriendsQuery } from "@/redux/features/user/user.api";
@@ -21,6 +22,44 @@ export default function FriendsSidebar({
   const { data: user } = useGetMeQuery(undefined, {
     skip: !isOpen,
   });
+
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (isOpen) {
+      socket.emit("get_online_users");
+    }
+
+    const handleOnlineUsersList = (users: string[]) => {
+      setOnlineUsers(new Set(users));
+    };
+
+    const handleUserOnline = ({ userId }: { userId: string }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
+        next.add(userId);
+        return next;
+      });
+    };
+
+    const handleUserOffline = ({ userId }: { userId: string }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
+    };
+
+    socket.on("online_users_list", handleOnlineUsersList);
+    socket.on("user_online", handleUserOnline);
+    socket.on("user_offline", handleUserOffline);
+
+    return () => {
+      socket.off("online_users_list", handleOnlineUsersList);
+      socket.off("user_online", handleUserOnline);
+      socket.off("user_offline", handleUserOffline);
+    };
+  }, [isOpen]);
 
   const handleSendInvitation = (friend: any) => {
     socket.emit("invitation", {
@@ -90,7 +129,7 @@ export default function FriendsSidebar({
                     className="group p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-all border border-transparent hover:border-gray-100 dark:hover:border-zinc-800 flex items-center gap-4"
                   >
                     <div className="relative">
-                      <div className="size-12 rounded-xl bg-gray-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden border-2 border-white dark:border-zinc-900 shadow-sm">
+                      <div className="size-12 rounded-xl bg-gray-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden border-2 border-white dark:border-zinc-900 shadow-sm relative">
                         {friend.image ? (
                           <Image
                             src={friend.image}
@@ -100,6 +139,11 @@ export default function FriendsSidebar({
                           />
                         ) : (
                           <User className="w-6 h-6 text-gray-300" />
+                        )}
+
+                        {/* Online Indicator */}
+                        {onlineUsers.has(friend._id) && (
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-zinc-900 rounded-full z-20" />
                         )}
                       </div>
                     </div>

@@ -1,7 +1,8 @@
-"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { User, Sword, Shield, Zap } from "lucide-react";
+import { User, Sword, Shield, Zap, CheckCircle2 } from "lucide-react";
 import { socket } from "@/lib/socket";
 
 export interface LobbyPlayer {
@@ -37,6 +38,42 @@ export default function BattleLobby({
   onSelectArena,
 }: BattleLobbyProps) {
   const { data: me } = useGetMeQuery(undefined);
+  const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
+  const [isOpponentReady, setIsOpponentReady] = useState(false);
+
+  useEffect(() => {
+    socket.on("opponent_ready", () => {
+      setIsOpponentReady(true);
+    });
+
+    socket.on("opponent_unready", () => {
+      setIsOpponentReady(false);
+    });
+
+    socket.on("battle_start", (data: { battleRoomId: string }) => {
+      // Navigate to battle page
+      router.push(`/battle/${data.battleRoomId}`);
+    });
+
+    return () => {
+      socket.off("opponent_ready");
+      socket.off("opponent_unready");
+      socket.off("battle_start");
+    };
+  }, [router]);
+
+  const handleReady = () => {
+    if (!me?._id) return;
+
+    if (isReady) {
+      setIsReady(false);
+      socket.emit("player_unready", { battleRoomId, userId: me._id });
+    } else {
+      setIsReady(true);
+      socket.emit("player_ready", { battleRoomId, userId: me._id });
+    }
+  };
 
   const leaveTeam = () => {
     const opponentId = me?._id === player1._id ? player2._id : player1._id;
@@ -71,7 +108,12 @@ export default function BattleLobby({
       <div className="w-full flex md:grid md:grid-cols-[1fr_auto_1fr] gap-2 sm:gap-8 items-center relative">
         {/* Player 1 Card */}
         <div className="flex-1 min-w-0">
-          <PlayerCard player={player1} side="left" color="blue" />
+          <PlayerCard
+            player={player1}
+            side="left"
+            color="blue"
+            isReady={me?._id === player1._id ? isReady : isOpponentReady}
+          />
         </div>
 
         {/* VS Badge - Scaled for mobile */}
@@ -95,7 +137,12 @@ export default function BattleLobby({
 
         {/* Player 2 Card */}
         <div className="flex-1 min-w-0">
-          <PlayerCard player={player2} side="right" color="red" />
+          <PlayerCard
+            player={player2}
+            side="right"
+            color="red"
+            isReady={me?._id === player2._id ? isReady : isOpponentReady}
+          />
         </div>
       </div>
 
@@ -108,16 +155,16 @@ export default function BattleLobby({
       >
         <div className="flex items-center gap-2 sm:gap-3 text-zinc-400 font-bold uppercase tracking-widest text-[8px] sm:text-xs">
           <Zap className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-500 text-yellow-500" />
-          Real-time Connection Established
+          {isReady ? "Waiting for opponent..." : "Real-time Connection Established"}
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
           <button
-            onClick={onStartBattle}
-            className="group relative w-full sm:w-auto bg-[#4088FD] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl sm:shadow-2xl shadow-blue-500/25"
+            onClick={handleReady}
+            className={`group relative w-full sm:w-auto ${isReady ? "bg-orange-500" : "bg-[#4088FD]"} text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl sm:shadow-2xl shadow-blue-500/25`}
           >
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            <span className="relative z-10">Start</span>
+            <span className="relative z-10">{isReady ? "Cancel Ready" : "Ready"}</span>
           </button>
 
           <button
@@ -137,10 +184,12 @@ function PlayerCard({
   player,
   side,
   color,
+  isReady,
 }: {
   player: LobbyPlayer;
   side: "left" | "right";
   color: "blue" | "red";
+  isReady?: boolean;
 }) {
   const isBlue = color === "blue";
 
@@ -162,7 +211,7 @@ function PlayerCard({
       >
         <motion.div
           whileHover={{ scale: 1.05, y: -5 }}
-          className={`relative w-full aspect-[3.5/4] sm:w-48 sm:h-64 rounded-2xl sm:rounded-[3rem] overflow-hidden border-2 sm:border-8 ${isBlue ? "border-blue-500/20" : "border-red-500/20"} dark:border-zinc-800 shadow-xl sm:shadow-2xl`}
+          className={`relative w-full aspect-[3.5/4] sm:w-48 sm:h-64 rounded-2xl sm:rounded-[3rem] overflow-hidden border-2 sm:border-8 ${isReady ? "border-green-500 ring-4 ring-green-500/20" : isBlue ? "border-blue-500/20" : "border-red-500/20"} dark:border-zinc-800 shadow-xl sm:shadow-2xl transition-all duration-300`}
         >
           <div
             className={`absolute inset-0 bg-gradient-to-b from-transparent to-${isBlue ? "blue" : "red"}-500/20 z-10`}
@@ -181,15 +230,18 @@ function PlayerCard({
           )}
 
           {/* Status Badge - Hidden on very small screens or made smaller */}
-          <div
-            className={`absolute bottom-2 sm:bottom-6 ${side === "left" ? "left-2 sm:left-6" : "right-2 sm:right-6"} z-20`}
-          >
-            <div className="px-1.5 sm:px-3 py-0.5 sm:py-1 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-lg sm:rounded-xl shadow-lg border border-white/20">
-              <span className="text-[6px] sm:text-[10px] font-black uppercase tracking-tighter text-zinc-800 dark:text-white">
-                Ready
-              </span>
+          {isReady && (
+            <div
+              className={`absolute bottom-2 sm:bottom-6 ${side === "left" ? "left-2 sm:left-6" : "right-2 sm:right-6"} z-20`}
+            >
+              <div className="px-1.5 sm:px-3 py-0.5 sm:py-1 bg-green-500 text-white backdrop-blur-md rounded-lg sm:rounded-xl shadow-lg border border-white/20">
+                <span className="text-[6px] sm:text-[10px] font-black uppercase tracking-tighter flex items-center gap-1">
+                  <CheckCircle2 className="w-2 h-2 sm:w-3 sm:h-3" />
+                  Ready
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </motion.div>
 
         {/* Info - Tightened for mobile */}
