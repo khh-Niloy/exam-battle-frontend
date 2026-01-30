@@ -47,23 +47,32 @@ export default function BattleLobby({
       setIsOpponentReady(true);
     });
 
+    socket.on("opponent_unready", () => {
+      setIsOpponentReady(false);
+    });
+
     socket.on("battle_start", (data: { battleRoomId: string }) => {
       // Navigate to battle page
-      // Note: "we didnt implementt the battle page" yet, but user asked to "move to the battle page".
-      // I'll assume /battle/[id] is the intended route.
       router.push(`/battle/${data.battleRoomId}`);
     });
 
     return () => {
       socket.off("opponent_ready");
+      socket.off("opponent_unready");
       socket.off("battle_start");
     };
   }, [router]);
 
   const handleReady = () => {
     if (!me?._id) return;
-    setIsReady(true);
-    socket.emit("player_ready", { battleRoomId, userId: me._id });
+
+    if (isReady) {
+      setIsReady(false);
+      socket.emit("player_unready", { battleRoomId, userId: me._id });
+    } else {
+      setIsReady(true);
+      socket.emit("player_ready", { battleRoomId, userId: me._id });
+    }
   };
 
   const leaveTeam = () => {
@@ -152,11 +161,10 @@ export default function BattleLobby({
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleReady}
-            disabled={isReady}
-            className={`group relative w-full sm:w-auto ${isReady ? "bg-green-500 cursor-default" : "bg-[#4088FD]"} text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all ${!isReady && "hover:scale-105 active:scale-95"} shadow-xl sm:shadow-2xl shadow-blue-500/25`}
+            className={`group relative w-full sm:w-auto ${isReady ? "bg-orange-500" : "bg-[#4088FD]"} text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl sm:shadow-2xl shadow-blue-500/25`}
           >
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            <span className="relative z-10">{isReady ? "Ready!" : "Ready"}</span>
+            <span className="relative z-10">{isReady ? "Cancel Ready" : "Ready"}</span>
           </button>
 
           <button
