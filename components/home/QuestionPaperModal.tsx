@@ -18,6 +18,10 @@ export default function QuestionPaperModal({
     skip: !isOpen,
   });
 
+  if (papers) {
+    onSelect(papers[0]);
+  }
+
   return (
     <AnimatePresence>
       {isOpen && (

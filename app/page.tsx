@@ -61,6 +61,8 @@ export default function Home() {
     };
   }, [userProfile]);
 
+  console.log(selectedPaper);
+
   const handleAcceptInvitation = () => {
     socket.emit("accepted", {
       acceptedUserInfo: userProfile,

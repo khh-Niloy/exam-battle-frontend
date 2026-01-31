@@ -59,6 +59,7 @@ export default function BattleLobby({
           player2: player2._id,
         });
       }
+
       // Redirect immediately
       router.push(`/battle/${battleRoomId}?paperId=${selectedPaper?._id}`);
     });
