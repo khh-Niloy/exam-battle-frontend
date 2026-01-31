@@ -23,45 +23,66 @@ export default function FriendsSidebar({
     skip: !isOpen,
   });
 
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isOpen) {
       socket.emit("get_online_users");
     }
 
-    const handleOnlineUsersList = (users: string[]) => {
-      setOnlineUsers(new Set(users));
+    const handleOnlineUsersList = (
+      users: { userId: string; status: string }[],
+    ) => {
+      const statusMap: Record<string, string> = {};
+      users.forEach((u) => (statusMap[u.userId] = u.status));
+      setOnlineUsers(statusMap);
     };
 
     const handleUserOnline = ({ userId }: { userId: string }) => {
-      setOnlineUsers((prev) => {
-        const next = new Set(prev);
-        next.add(userId);
-        return next;
-      });
+      setOnlineUsers((prev) => ({ ...prev, [userId]: "AVAILABLE" }));
     };
 
     const handleUserOffline = ({ userId }: { userId: string }) => {
       setOnlineUsers((prev) => {
-        const next = new Set(prev);
-        next.delete(userId);
+        const next = { ...prev };
+        delete next[userId];
         return next;
       });
+    };
+
+    const handleStatusUpdate = ({
+      userId,
+      status,
+    }: {
+      userId: string;
+      status: string;
+    }) => {
+      setOnlineUsers((prev) => ({ ...prev, [userId]: status }));
+    };
+
+    const handleError = ({ message }: { message: string }) => {
+      alert(message);
     };
 
     socket.on("online_users_list", handleOnlineUsersList);
     socket.on("user_online", handleUserOnline);
     socket.on("user_offline", handleUserOffline);
+    socket.on("user_status_updated", handleStatusUpdate);
+    socket.on("error_message", handleError);
 
     return () => {
       socket.off("online_users_list", handleOnlineUsersList);
       socket.off("user_online", handleUserOnline);
       socket.off("user_offline", handleUserOffline);
+      socket.off("user_status_updated", handleStatusUpdate);
+      socket.off("error_message", handleError);
     };
   }, [isOpen]);
 
   const handleSendInvitation = (friend: any) => {
+    if (onlineUsers[friend._id] && onlineUsers[friend._id] !== "AVAILABLE") {
+      return;
+    }
     socket.emit("invitation", {
       receiverFriendId: friend._id,
       senderInfo: user,
@@ -142,16 +163,26 @@ export default function FriendsSidebar({
                         )}
 
                         {/* Online Indicator */}
-                        {onlineUsers.has(friend._id) && (
-                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-zinc-900 rounded-full z-20" />
+                        {onlineUsers[friend._id] && (
+                          <div
+                            className={`absolute bottom-0 right-0 w-3 h-3 ${onlineUsers[friend._id] === "AVAILABLE" ? "bg-green-500" : "bg-orange-500"} border-2 border-white dark:border-zinc-900 rounded-full z-20`}
+                          />
                         )}
                       </div>
                     </div>
 
                     <div className="flex-1 min-w-0 text-left">
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                        {friend.name}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                          {friend.name}
+                        </h3>
+                        {onlineUsers[friend._id] &&
+                          onlineUsers[friend._id] !== "AVAILABLE" && (
+                            <span className="text-[8px] font-black uppercase px-1.5 py-0.5 bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-md border border-orange-200 dark:border-orange-500/30 whitespace-nowrap">
+                              {onlineUsers[friend._id].replace("_", " ")}
+                            </span>
+                          )}
+                      </div>
                       {friend.studentInfo ? (
                         <p className="text-[10px] font-bold text-gray-400 truncate">
                           {friend.studentInfo.class} ({friend.studentInfo.group}
@@ -167,9 +198,16 @@ export default function FriendsSidebar({
                     <div className="flex gap-1 transition-opacity">
                       <button
                         onClick={() => handleSendInvitation(friend)}
-                        className="px-3 py-1.5 bg-[#4088FD] text-white rounded-lg text-xs font-bold hover:bg-[#3a7bd5] transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+                        disabled={onlineUsers[friend._id] !== "AVAILABLE"}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-lg active:scale-95 ${
+                          onlineUsers[friend._id] === "AVAILABLE"
+                            ? "bg-[#4088FD] text-white hover:bg-[#3a7bd5] shadow-blue-500/20"
+                            : "bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-600 cursor-not-allowed shadow-none"
+                        }`}
                       >
-                        Send Invitation
+                        {onlineUsers[friend._id] === "AVAILABLE"
+                          ? "Invite"
+                          : "Busy"}
                       </button>
                     </div>
                   </div>
