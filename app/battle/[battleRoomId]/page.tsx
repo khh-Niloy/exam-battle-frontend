@@ -316,14 +316,13 @@ export default function BattlePage({
                     onClick={() => handleOptionSelect(qIndex, optIndex)}
                     className={`
                       group relative w-full p-5 rounded-2xl text-left border-2 transition-all duration-300
-                      ${
-                        !hasAnswered
-                          ? "border-slate-100 bg-slate-50/50 hover:border-blue-500 hover:bg-white hover:shadow-md"
-                          : isCorrect
-                            ? "border-emerald-500 bg-emerald-50/50"
-                            : isSelected
-                              ? "border-rose-500 bg-rose-50/50"
-                              : "border-slate-50 bg-slate-50/30 opacity-60"
+                      ${!hasAnswered
+                        ? "border-slate-100 bg-slate-50/50 hover:border-blue-500 hover:bg-white hover:shadow-md"
+                        : isCorrect
+                          ? "border-emerald-500 bg-emerald-50/50"
+                          : isSelected
+                            ? "border-rose-500 bg-rose-50/50"
+                            : "border-slate-50 bg-slate-50/30 opacity-60"
                       }
                     `}
                   >
@@ -332,15 +331,14 @@ export default function BattlePage({
                         <span
                           className={`
                           w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black italic border
-                          ${
-                            !hasAnswered
+                          ${!hasAnswered
                               ? "bg-white border-slate-200 text-slate-400 group-hover:border-blue-200 group-hover:text-blue-500"
                               : isCorrect
                                 ? "bg-emerald-500 border-emerald-400 text-white"
                                 : isSelected
                                   ? "bg-rose-500 border-rose-400 text-white"
                                   : "bg-slate-100 border-slate-100 text-slate-300"
-                          }
+                            }
                         `}
                         >
                           {String.fromCharCode(65 + optIndex)}
@@ -363,6 +361,19 @@ export default function BattlePage({
                 );
               })}
             </div>
+
+            {stats.left === 0 && q.explanation && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="mt-6 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 text-sm leading-relaxed text-slate-600 overflow-hidden"
+              >
+                <span className="block text-xs font-black text-blue-500 uppercase tracking-widest mb-2">
+                  Explanation
+                </span>
+                {q.explanation}
+              </motion.div>
+            )}
           </motion.div>
         ))}
 
