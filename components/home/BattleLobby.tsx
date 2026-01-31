@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { User, Sword, Shield, Zap, CheckCircle2 } from "lucide-react";
 import { socket } from "@/lib/socket";
@@ -52,8 +52,15 @@ export default function BattleLobby({
     });
 
     socket.on("battle_start", (data: { battleRoomId: string }) => {
-      // Navigate to battle page
-      router.push(`/battle/${data.battleRoomId}`);
+      // Mark players as in battle
+      if (me?._id) {
+        socket.emit("mark_in_battle", {
+          player1: player1._id,
+          player2: player2._id,
+        });
+      }
+      // Redirect immediately
+      router.push(`/battle/${battleRoomId}?paperId=${selectedPaper?._id}`);
     });
 
     return () => {
@@ -61,7 +68,7 @@ export default function BattleLobby({
       socket.off("opponent_unready");
       socket.off("battle_start");
     };
-  }, [router]);
+  }, [me, player1._id, player2._id, battleRoomId, router, selectedPaper?._id]);
 
   const handleReady = () => {
     if (!me?._id) return;
@@ -77,7 +84,11 @@ export default function BattleLobby({
 
   const leaveTeam = () => {
     const opponentId = me?._id === player1._id ? player2._id : player1._id;
-    socket.emit("leave_lobby", { opponentId, battleRoomId });
+    socket.emit("leave_lobby", {
+      opponentId,
+      battleRoomId,
+      selfId: me?._id,
+    });
     onLeave();
   };
 
@@ -155,7 +166,9 @@ export default function BattleLobby({
       >
         <div className="flex items-center gap-2 sm:gap-3 text-zinc-400 font-bold uppercase tracking-widest text-[8px] sm:text-xs">
           <Zap className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-500 text-yellow-500" />
-          {isReady ? "Waiting for opponent..." : "Real-time Connection Established"}
+          {isReady
+            ? "Waiting for opponent..."
+            : "Real-time Connection Established"}
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -164,7 +177,9 @@ export default function BattleLobby({
             className={`group relative w-full sm:w-auto ${isReady ? "bg-orange-500" : "bg-[#4088FD]"} text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl sm:shadow-2xl shadow-blue-500/25`}
           >
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            <span className="relative z-10">{isReady ? "Cancel Ready" : "Ready"}</span>
+            <span className="relative z-10">
+              {isReady ? "Cancel Ready" : "Ready"}
+            </span>
           </button>
 
           <button

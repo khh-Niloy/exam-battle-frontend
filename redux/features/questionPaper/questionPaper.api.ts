@@ -4,17 +4,18 @@ export const questionPaperApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllQuestionPapers: builder.query({
       query: () => ({
-        url: "/question-paper",
+        url: "question-paper",
         method: "GET",
       }),
       transformResponse: (response: { data: any[] }) => response.data,
       providesTags: ["questionPaper"],
     }),
     getSingleQuestionPaper: builder.query({
-      query: (id) => ({
-        url: `/question-paper/${id}`,
+      query: (id: string) => ({
+        url: `question-paper/${id}`,
         method: "GET",
       }),
+      transformResponse: (response: { data: any }) => response.data,
       providesTags: ["questionPaper"],
     }),
   }),
