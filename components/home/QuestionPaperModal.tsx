@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, BookOpen, Loader2, Trophy, Zap } from "lucide-react";
 import { useGetAllQuestionPapersQuery } from "@/redux/features/questionPaper/questionPaper.api";
@@ -18,9 +19,11 @@ export default function QuestionPaperModal({
     skip: !isOpen,
   });
 
-  if (papers) {
-    onSelect(papers[0]);
-  }
+  useEffect(() => {
+    if (papers && papers.length > 0) {
+      onSelect(papers[0]);
+    }
+  }, [papers, onSelect]);
 
   return (
     <AnimatePresence>

@@ -13,9 +13,12 @@ import {
   Target,
   Hash,
   Activity,
+  Loader2,
+  Home,
 } from "lucide-react";
 import { socket } from "@/lib/socket";
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
+import BattleResultModal from "@/components/battle/BattleResultModal";
 
 function CompactStat({
   value,
@@ -152,6 +155,22 @@ export default function BattlePage({
   const handleOptionSelect = (qIndex: number, optIndex: number) => {
     if (answers[qIndex] !== undefined) return;
     setAnswers((prev) => ({ ...prev, [qIndex]: optIndex }));
+  };
+
+  const [viewingExplanations, setViewingExplanations] = useState(false);
+
+  const isBattleOver = stats.left === 0 && opponentProgress.left === 0;
+
+  const winner = useMemo(() => {
+    if (!isBattleOver) return "draw";
+    if (stats.correct > opponentProgress.correct) return "me";
+    if (stats.correct < opponentProgress.correct) return "opponent";
+    return "draw";
+  }, [isBattleOver, stats.correct, opponentProgress.correct]);
+
+  // Handle "Show Explanation" button click
+  const handleShowExplanation = () => {
+    setViewingExplanations(true);
   };
 
   if (isLoading) {
@@ -362,7 +381,7 @@ export default function BattlePage({
               })}
             </div>
 
-            {stats.left === 0 && q.explanation && (
+            {viewingExplanations && q.explanation && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -377,53 +396,59 @@ export default function BattlePage({
           </motion.div>
         ))}
 
-        {/* Final Battle Result Overlay */}
-        {stats.left === 0 && (
+        {/* Start: Updated Result Logic */}
+
+        {/* Waiting Overlay: When I'm done but opponent isn't */}
+        {stats.left === 0 && !isBattleOver && !viewingExplanations && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="p-10 bg-white rounded-[3rem] border border-blue-100 shadow-2xl text-center space-y-6"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-500/40">
-              <Trophy className="w-10 h-10" />
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-blue-50 text-blue-500 shadow-inner">
+              <Loader2 className="w-10 h-10 animate-spin" />
             </div>
             <div>
-              <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter italic">
-                Battle Finished!
+              <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter italic">
+                You are blazing fast!
               </h2>
               <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">
-                Checking Final Results...
+                Waiting for opponent to finish...
               </p>
             </div>
+          </motion.div>
+        )}
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
-                <div className="text-4xl font-black text-blue-600 mb-1">
-                  {stats.correct}
-                </div>
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                  Your Score
-                </div>
-              </div>
-              <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
-                <div className="text-4xl font-black text-rose-500 mb-1">
-                  {opponentProgress.correct}
-                </div>
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                  Opponent
-                </div>
-              </div>
-            </div>
-
+        {/* Final Modal: When both are done */}
+        {isBattleOver && !viewingExplanations && (
+          <BattleResultModal
+            myScore={stats.correct}
+            opponentScore={opponentProgress.correct}
+            myAccuracy={stats.accuracy}
+            opponentAccuracy={opponentProgress.accuracy}
+            winner={winner}
+            onShowExplanation={handleShowExplanation}
+            onBackToLobby={() => (window.location.href = "/")}
+          />
+        )}
+        {/* Back to Lobby Button (Visible when viewing explanations) */}
+        {viewingExplanations && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-6 left-0 right-0 p-4 flex justify-center z-50 pointer-events-none"
+          >
             <button
               onClick={() => (window.location.href = "/")}
-              className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-95"
+              className="pointer-events-auto bg-white text-slate-900 px-8 py-4 rounded-full font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 border border-slate-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
-              Exit to Lobby
+              <Home className="w-4 h-4" />
+              Back to Lobby
             </button>
           </motion.div>
         )}
       </main>
+
 
       {/* Visual Decor */}
       <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.05),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.05),transparent_40%)]" />
