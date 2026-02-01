@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import { ReduxProvider } from "@/components/provider/ReduxProvider";
 import { Toaster } from "react-hot-toast";
+import BottomNav from "@/components/shared/BottomNav";
 
 export default function RootLayout({
   children,
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <ReduxProvider>
           {children}
+          <BottomNav />
           <Toaster />
         </ReduxProvider>
       </body>
