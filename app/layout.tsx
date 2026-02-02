@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 import { ReduxProvider } from "@/components/provider/ReduxProvider";
 import { Toaster } from "react-hot-toast";
 import BottomNav from "@/components/shared/BottomNav";
+import TopHeader from "@/components/shared/TopHeader";
 
 export default function RootLayout({
   children,
@@ -32,7 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReduxProvider>
-          {children}
+          <main className="min-h-screen">{children}</main>
           <BottomNav />
           <Toaster />
         </ReduxProvider>
