@@ -72,6 +72,20 @@ const TopHeader = () => {
                   {user.studentInfo?.instituteName || "Exam Battle Player"} -
                   class {user.studentInfo?.class}
                 </span>
+                <div className="mt-1 flex items-center gap-1.5">
+                  <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-[#4088FD] text-[10px] font-bold rounded-full border border-blue-100 dark:border-blue-800">
+                    {user.uniqueNameCode}
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.uniqueNameCode);
+                      toast.success("Code copied!");
+                    }}
+                    className="text-[10px] font-bold text-gray-400 hover:text-blue-500 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
               </div>
             </motion.div>
           ) : (
@@ -110,17 +124,27 @@ const TopHeader = () => {
       {/* Right Side: Auth Button */}
       <div className="flex items-center gap-3">
         {user ? (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleLogout}
-            className="flex items-center text-xs font-bold"
-          >
-            <Button className="bg-red-500/90 py-4" size="sm">
-              <LogOut className="w-4 h-4" />
-              Logout
-            </Button>
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <Link href="/profile">
+              <Button
+                variant="ghost"
+                className="rounded-full w-10 h-10 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                <User className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+              </Button>
+            </Link>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleLogout}
+            >
+              <Button className="bg-red-500/90 py-4" size="sm">
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">Logout</span>
+              </Button>
+            </motion.button>
+          </div>
         ) : (
           <Link href="/login">
             <motion.button

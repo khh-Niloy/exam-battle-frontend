@@ -10,6 +10,7 @@ import BattleLobby from "@/components/home/BattleLobby";
 import MapSelectorButton from "@/components/home/MapSelectorButton";
 import QuestionPaperModal from "@/components/home/QuestionPaperModal";
 import ActiveFriendsList from "@/components/home/ActiveFriendsList";
+import FriendRequestsManager from "@/components/home/FriendRequestsManager";
 import TopHeader from "@/components/shared/TopHeader";
 
 export default function Home() {
@@ -190,7 +191,7 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        <main className="w-full max-w-5xl flex flex-col items-center gap-6">
+        <main className="w-full max-w-5xl flex flex-col items-center gap-8">
           {!isLobbyOpen && <ActiveFriendsList selectedPaper={selectedPaper} />}
 
           <motion.div

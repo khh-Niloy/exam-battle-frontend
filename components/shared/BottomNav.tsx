@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, History, User, Bot } from "lucide-react";
+import { Home, History, User, Bot, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   useLogoutMutation,
@@ -30,7 +30,7 @@ export default function BottomNav() {
     { name: "History", href: "/history", icon: History },
     ...(isAdmin ? [{ name: "Creation", href: "/creation", icon: Bot }] : []),
     { name: "AI", href: "/ai", icon: Bot },
-    { name: "Profile", href: "/profile", icon: User },
+    { name: "Friends", href: "/friends", icon: Users },
   ];
 
   // Navigation configuration

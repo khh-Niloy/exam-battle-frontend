@@ -100,89 +100,99 @@ export default function ActiveFriendsList({
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-2 scrollbar-hide snap-x">
-        {friends.map((friend: any) => {
-          const isAvailable = onlineUsers[friend._id] === "AVAILABLE";
-          const isBusy =
-            onlineUsers[friend._id] && onlineUsers[friend._id] !== "AVAILABLE";
-          const isOnline = isAvailable || isBusy;
+        {friends
+          .filter((f: any) => f) // Filter out null/undefined
+          .sort((a: any, b: any) => {
+            const aOnline = onlineUsers[a._id] ? 1 : 0;
+            const bOnline = onlineUsers[b._id] ? 1 : 0;
+            return bOnline - aOnline;
+          })
+          .map((friend: any) => {
+            const isAvailable = onlineUsers[friend._id] === "AVAILABLE";
+            const isBusy =
+              onlineUsers[friend._id] &&
+              onlineUsers[friend._id] !== "AVAILABLE";
+            const isOnline = isAvailable || isBusy;
 
-          return (
-            <motion.div
-              key={friend._id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ y: -4, scale: 1.02 }}
-              className="flex-shrink-0 flex flex-col items-center gap-3 snap-center cursor-pointer group relative"
-            >
-              {/* Card Container */}
-              <div className="relative">
-                <div
-                  className={`relative w-18 h-18 rounded-[1.8rem] p-1 transition-all duration-300 ${
-                    isOnline
-                      ? "bg-gradient-to-br from-green-500 to-emerald-600 p-[2px] shadow-lg shadow-green-500/20"
-                      : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-gray-200 dark:group-hover:bg-zinc-700"
-                  }`}
-                >
-                  <div className="w-full h-full rounded-[1.5rem] overflow-hidden relative bg-white dark:bg-zinc-900 border-2 border-white dark:border-zinc-900">
-                    {friend.image ? (
-                      <Image
-                        src={friend.image}
-                        alt={friend.name}
-                        fill
-                        className={`object-cover transition-all duration-500 ${!isOnline ? "grayscale group-hover:grayscale-0" : ""}`}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-zinc-800">
-                        <User className="w-8 h-8 text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Invite Button for Available Users */}
-                {isAvailable && (
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSendInvitation(friend);
-                    }}
-                    className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#4088FD] text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg shadow-blue-500/40 border-2 border-white dark:border-zinc-900 z-20 hover:bg-[#3272d9] flex items-center gap-1"
-                  >
-                    <span>Invite</span>
-                  </motion.button>
-                )}
-
-                {/* Status Badge for others */}
-                {!isAvailable && (
+            return (
+              <motion.div
+                key={friend._id}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                className="flex-shrink-0 flex flex-col items-center gap-3 snap-center cursor-pointer group relative"
+              >
+                {/* Card Container */}
+                <div className="relative">
                   <div
-                    className={`absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white shadow-xl z-10 whitespace-nowrap border-2 border-white dark:border-zinc-900 ${
+                    className={`relative w-18 h-18 rounded-[1.8rem] p-1 transition-all duration-300 ${
                       isOnline
-                        ? "bg-orange-500"
-                        : "bg-zinc-400 dark:bg-zinc-600"
+                        ? "bg-gradient-to-br from-green-500 to-emerald-600 p-[2px] shadow-lg shadow-green-500/20"
+                        : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-gray-200 dark:group-hover:bg-zinc-700"
                     }`}
                   >
-                    {isOnline ? "In Game" : "Offline"}
+                    <div className="w-full h-full rounded-[1.5rem] overflow-hidden relative bg-white dark:bg-zinc-900 border-2 border-white dark:border-zinc-900">
+                      {friend.image ? (
+                        <Image
+                          src={friend.image}
+                          alt={friend.name}
+                          fill
+                          className={`object-cover transition-all duration-500 ${!isOnline ? "grayscale group-hover:grayscale-0" : ""}`}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-zinc-800">
+                          <User className="w-8 h-8 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
 
-              <div className="text-center pt-3">
-                <p
-                  className={`text-sm font-bold truncate max-w-[80px] transition-colors ${
-                    isOnline ? "text-black" : "text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  {friend.name}
-                </p>
-                <p className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                  {isOnline ? "Online" : "Offline"}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
+                  {/* Invite Button for Available Users */}
+                  {isAvailable && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSendInvitation(friend);
+                      }}
+                      className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#4088FD] text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg shadow-blue-500/40 border-2 border-white dark:border-zinc-900 z-20 hover:bg-[#3272d9] flex items-center gap-1"
+                    >
+                      <span>Invite</span>
+                    </motion.button>
+                  )}
+
+                  {/* Status Badge for others */}
+                  {!isAvailable && (
+                    <div
+                      className={`absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white shadow-xl z-10 whitespace-nowrap border-2 border-white dark:border-zinc-900 ${
+                        isOnline
+                          ? "bg-orange-500"
+                          : "bg-zinc-400 dark:bg-zinc-600"
+                      }`}
+                    >
+                      {isOnline ? "In Game" : "Offline"}
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-center pt-3">
+                  <p
+                    className={`text-sm font-bold truncate max-w-[80px] transition-colors ${
+                      isOnline
+                        ? "text-black"
+                        : "text-gray-600 dark:text-gray-400"
+                    }`}
+                  >
+                    {friend.name}
+                  </p>
+                  <p className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                    {isOnline ? "Online" : "Offline"}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
       </div>
     </div>
   );
