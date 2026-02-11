@@ -18,8 +18,28 @@ export const questionPaperApi = baseApi.injectEndpoints({
       transformResponse: (response: { data: any }) => response.data,
       providesTags: ["questionPaper"],
     }),
+    getMyQuestionPapers: builder.query({
+      query: () => ({
+        url: "question-paper/my-papers",
+        method: "GET",
+      }),
+      transformResponse: (response: { data: any[] }) => response.data,
+      providesTags: ["questionPaper"],
+    }),
+    createQuestionPaper: builder.mutation({
+      query: (data) => ({
+        url: "question-paper/create",
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: ["questionPaper"],
+    }),
   }),
 });
 
-export const { useGetAllQuestionPapersQuery, useGetSingleQuestionPaperQuery } =
-  questionPaperApi;
+export const {
+  useGetAllQuestionPapersQuery,
+  useGetSingleQuestionPaperQuery,
+  useGetMyQuestionPapersQuery,
+  useCreateQuestionPaperMutation,
+} = questionPaperApi;
