@@ -55,7 +55,7 @@ export default function FriendsPage() {
   }, []);
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 pb-24">
+    <div className="w-full max-w-2xl mx-auto p-6 pb-32 sm:pb-40">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-black text-zinc-800 dark:text-white">
           Friends

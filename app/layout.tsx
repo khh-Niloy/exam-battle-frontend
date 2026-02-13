@@ -33,7 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReduxProvider>
-          <main className="min-h-screen">{children}</main>
+          <main className="min-h-screen pb-32">{children}</main>
           <BottomNav />
           <Toaster />
         </ReduxProvider>

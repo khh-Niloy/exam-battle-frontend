@@ -12,6 +12,9 @@ import QuestionPaperModal from "@/components/home/QuestionPaperModal";
 import ActiveFriendsList from "@/components/home/ActiveFriendsList";
 import FriendRequestsManager from "@/components/home/FriendRequestsManager";
 import TopHeader from "@/components/shared/TopHeader";
+import { Roles } from "@/redux/features/auth/auth.types";
+import Link from "next/link";
+import { Swords } from "lucide-react";
 
 export default function Home() {
   const [isFriendsOpen, setIsFriendsOpen] = useState(false);
@@ -88,7 +91,7 @@ export default function Home() {
   return (
     <>
       <TopHeader />
-      <div className="flex flex-col items-center px-4 pt-4 sm:px-12 overflow-hidden w-full">
+      <div className="flex flex-col items-center px-4 pt-4 sm:px-12 pb-32 sm:pb-40 w-full min-h-screen">
         <AnimatePresence mode="wait">
           {isInvitationOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none p-4">
@@ -214,13 +217,52 @@ export default function Home() {
               />
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4">
-                {/* Welcome message or something else catchy can go here */}
+                {/* Join War Button for Users */}
+                {userProfile?.role !== Roles.ADMIN &&
+                  userProfile?.role !== Roles.SUPER_ADMIN && (
+                    <Link href="/war" className="mb-4">
+                      <motion.button
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="group relative flex items-center gap-4 bg-gradient-to-br from-emerald-500 to-teal-600 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(16,185,129,0.3)] hover:shadow-[0_25px_50px_rgba(16,185,129,0.4)] transition-all overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="relative flex items-center justify-center w-10 h-10 bg-white/20 rounded-2xl backdrop-blur-md">
+                          <motion.span
+                            animate={{ rotate: [0, 15, 0, -15, 0] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            ⚔️
+                          </motion.span>
+                        </div>
+                        <span>Join Exam War</span>
+                      </motion.button>
+                    </Link>
+                  )}
+
                 <h2 className="text-3xl font-black text-zinc-800 dark:text-white">
                   Ready for Battle?
                 </h2>
                 <p className="text-zinc-500 dark:text-zinc-400 font-medium">
                   Challenge your friends and climb the leaderboard
                 </p>
+
+                {(userProfile?.role === Roles.ADMIN ||
+                  userProfile?.role === Roles.SUPER_ADMIN) && (
+                  <Link href="/war" className="pt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="group relative flex items-center gap-4 bg-gradient-to-br from-indigo-600 to-purple-700 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(79,70,229,0.3)] hover:shadow-[0_25px_50px_rgba(79,70,229,0.4)] transition-all overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative flex items-center justify-center w-10 h-10 bg-white/20 rounded-2xl backdrop-blur-md">
+                        <Swords className="w-5 h-5 text-white" />
+                      </div>
+                      <span>Manage Exam Wars</span>
+                    </motion.button>
+                  </Link>
+                )}
               </div>
             )}
           </motion.div>
