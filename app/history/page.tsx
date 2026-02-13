@@ -20,7 +20,7 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen p-6 sm:p-12 max-w-2xl mx-auto pb-24">
+    <div className="min-h-screen p-6 sm:p-12 max-w-2xl mx-auto pb-32 sm:pb-40">
       <div className="flex items-center gap-3 mb-8 px-2">
         <div className="p-3 bg-blue-50 dark:bg-zinc-800 rounded-2xl">
           <Trophy className="w-6 h-6 text-blue-500" />
