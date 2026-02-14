@@ -87,6 +87,16 @@ const warApi = baseApi.injectEndpoints({
       transformResponse: (response: { data: IWar }) => response.data,
       invalidatesTags: ["war"],
     }),
+
+    // User: Leave a war
+    leaveWar: builder.mutation<IWar, string>({
+      query: (warId) => ({
+        url: `wars/${warId}/leave`,
+        method: "DELETE",
+      }),
+      transformResponse: (response: { data: IWar }) => response.data,
+      invalidatesTags: ["war"],
+    }),
   }),
 });
 
@@ -99,4 +109,5 @@ export const {
   useGetMyCreatedWarsQuery,
   useGetMyJoinedWarsQuery,
   useRemoveParticipantMutation,
+  useLeaveWarMutation,
 } = warApi;
