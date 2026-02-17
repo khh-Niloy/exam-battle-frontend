@@ -36,7 +36,8 @@ export default function BottomNav() {
   // Navigation configuration
   if (!pathname) return null;
   if (["/login", "/register", "/landing"].includes(pathname)) return null;
-  if (pathname.startsWith("/battle/")) return null;
+  if (pathname.startsWith("/battle/") || pathname.startsWith("/war/"))
+    return null;
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">

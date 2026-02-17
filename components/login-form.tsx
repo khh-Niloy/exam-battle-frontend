@@ -34,8 +34,8 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const handleAutoLogin = async (email: string) => {
-    await onSubmit({ email, password: "password123" });
+  const handleAutoLogin = async (email: string, password?: string) => {
+    await onSubmit({ email, password: password || "password123" });
   };
 
   const onSubmit = async (data: LoginSchema) => {
@@ -153,12 +153,12 @@ export function LoginForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {demoUser.map((demo) => (
               <button
                 key={demo.name}
                 type="button"
-                onClick={() => handleAutoLogin(demo.email)}
+                onClick={() => handleAutoLogin(demo.email, demo.password)}
                 className="py-3 px-2 border border-blue-50 bg-blue-50/30 text-[#4088FD] rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-[#4088FD] hover:text-white transition-all active:scale-95 shadow-sm"
               >
                 {demo.name}
