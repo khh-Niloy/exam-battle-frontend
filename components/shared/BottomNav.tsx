@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, History, User, Bot, Users } from "lucide-react";
+import { Home, History, User, Bot, Users, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   useLogoutMutation,
@@ -23,12 +23,12 @@ export default function BottomNav() {
   };
 
   const { data: user } = useGetMeQuery(undefined);
-  const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const isCoaching = user?.role === "COACHING" || user?.role === "SUPER_ADMIN";
 
   const navItems = [
     { name: "Lobby", href: "/", icon: Home },
     { name: "History", href: "/history", icon: History },
-    ...(isAdmin ? [{ name: "Creation", href: "/creation", icon: Bot }] : []),
+    { name: "Coach", href: "/coaching", icon: GraduationCap },
     { name: "AI", href: "/ai", icon: Bot },
     { name: "Friends", href: "/friends", icon: Users },
   ];

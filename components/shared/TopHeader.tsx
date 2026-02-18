@@ -134,27 +134,27 @@ const TopHeader = () => {
               </Button>
             </Link>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleLogout}
-            >
-              <Button className="bg-red-500/90 py-4" size="sm">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={handleLogout}
+                className="bg-red-500/90 py-4"
+                size="sm"
+              >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline ml-2">Logout</span>
               </Button>
-            </motion.button>
+            </motion.div>
           </div>
         ) : (
           <Link href="/login">
-            <motion.button
+            <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="flex items-center gap-2 bg-blue-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 hover:bg-blue-600 transition-colors"
             >
               <LogIn className="w-4 h-4" />
               <span>Login</span>
-            </motion.button>
+            </motion.div>
           </Link>
         )}
       </div>

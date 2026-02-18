@@ -218,7 +218,7 @@ export default function Home() {
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4">
                 {/* Join War Button for Users */}
-                {userProfile?.role !== Roles.ADMIN &&
+                {userProfile?.role !== Roles.COACHING &&
                   userProfile?.role !== Roles.SUPER_ADMIN && (
                     <Link href="/war" className="mb-4">
                       <motion.button
@@ -247,7 +247,7 @@ export default function Home() {
                   Challenge your friends and climb the leaderboard
                 </p>
 
-                {(userProfile?.role === Roles.ADMIN ||
+                {(userProfile?.role === Roles.COACHING ||
                   userProfile?.role === Roles.SUPER_ADMIN) && (
                   <Link href="/war" className="pt-4">
                     <motion.button

@@ -19,12 +19,7 @@ import {
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 import { WarStatus } from "@/redux/features/war/war.types";
 
-enum Roles {
-  FREE = "FREE",
-  PREMIUM = "PREMIUM",
-  ADMIN = "ADMIN",
-  SUPER_ADMIN = "SUPER_ADMIN",
-}
+import { Roles } from "@/redux/features/auth/auth.types";
 
 interface WarDashboardProps {
   onCreateWar: () => void;
@@ -41,7 +36,8 @@ export default function WarDashboard({
   const { data: createdWarsData, isLoading: loadingCreated } =
     useGetMyCreatedWarsQuery(undefined, {
       skip:
-        userData?.role !== Roles.ADMIN && userData?.role !== Roles.SUPER_ADMIN,
+        userData?.role !== Roles.COACHING &&
+        userData?.role !== Roles.SUPER_ADMIN,
     });
   const { data: joinedWarsData, isLoading: loadingJoined } =
     useGetMyJoinedWarsQuery(undefined);
@@ -49,8 +45,8 @@ export default function WarDashboard({
   const [cancelWar, { isLoading: cancelling }] = useCancelWarMutation();
   const [leaveWar, { isLoading: leaving }] = useLeaveWarMutation();
 
-  const isAdmin =
-    userData?.role === Roles.ADMIN || userData?.role === Roles.SUPER_ADMIN;
+  const isCoaching =
+    userData?.role === Roles.COACHING || userData?.role === Roles.SUPER_ADMIN;
   const createdWars = (createdWarsData as any) || [];
   const joinedWars = (joinedWarsData as any) || [];
 
@@ -129,7 +125,7 @@ export default function WarDashboard({
         transition={{ delay: 0.1 }}
         className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
       >
-        {isAdmin && (
+        {isCoaching && (
           <button
             onClick={onCreateWar}
             className="group relative overflow-hidden p-6 rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 transition-all"
@@ -164,8 +160,8 @@ export default function WarDashboard({
         </button>
       </motion.div>
 
-      {/* Created Wars (Admin Only) */}
-      {isAdmin && (
+      {/* Created Wars (Coaching Only) */}
+      {isCoaching && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
