@@ -79,6 +79,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Auth / guest orange mesh background */
+  --bg-auth-mesh: radial-gradient(circle at 20% 100%, #ffedd5, transparent 55%),
+    radial-gradient(circle at 90% 80%, #fed7aa, transparent 20%),
+    radial-gradient(circle at 40% 10%, #fff7ed, transparent 10%),
+    linear-gradient(0deg, #fff7ed, rgba(255, 247, 237, 0.7));
 }
 
 .dark {

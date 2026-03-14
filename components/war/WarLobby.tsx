@@ -15,13 +15,17 @@ import {
   Crown,
   User,
   Trash2,
+  MessageSquare,
+  LogOut,
 } from "lucide-react";
+import ChatSidebar from "../shared/ChatSidebar";
 import Image from "next/image";
 import {
   useGetWarDetailsQuery,
   useStartWarMutation,
   useRemoveParticipantMutation,
   useCancelWarMutation,
+  useLeaveWarMutation,
 } from "@/redux/features/war/war.api";
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 import { WarStatus } from "@/redux/features/war/war.types";
@@ -34,6 +38,7 @@ interface WarLobbyProps {
 export default function WarLobby({ warId, onClose }: WarLobbyProps) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const { data: userData } = useGetMeQuery(undefined);
   const {
@@ -45,6 +50,7 @@ export default function WarLobby({ warId, onClose }: WarLobbyProps) {
   const [removeParticipant, { isLoading: removing }] =
     useRemoveParticipantMutation();
   const [cancelWar] = useCancelWarMutation();
+  const [leaveWar, { isLoading: leaving }] = useLeaveWarMutation();
 
   const war = warResponse as any;
   const currentUserId = userData?._id;
@@ -112,6 +118,18 @@ export default function WarLobby({ warId, onClose }: WarLobbyProps) {
       onClose(); // Go back to dashboard after cancelling
     } catch (error: any) {
       alert(error?.data?.message || "Failed to cancel war");
+    }
+  };
+
+  const handleLeaveWar = async () => {
+    if (isCreator) return;
+    if (!confirm("Are you sure you want to leave this war?")) return;
+
+    try {
+      await leaveWar(warId).unwrap();
+      onClose(); // Go back to dashboard after leaving
+    } catch (error: any) {
+      alert(error?.data?.message || "Failed to leave war");
     }
   };
 
@@ -209,6 +227,23 @@ export default function WarLobby({ warId, onClose }: WarLobbyProps) {
                   Close War
                 </button>
               )}
+              {!isCreator && war.status === WarStatus.WAITING && (
+                <button
+                  onClick={handleLeaveWar}
+                  disabled={leaving}
+                  className="px-4 py-2 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-600 hover:text-white transition-all flex items-center gap-2 text-sm font-black uppercase tracking-wider border border-orange-100 dark:border-orange-900/50"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Leave War
+                </button>
+              )}
+              <button
+                onClick={() => setIsChatOpen(true)}
+                className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors border border-blue-100 dark:border-blue-900/50"
+                title="Chat with warriors"
+              >
+                <MessageSquare className="w-5 h-5" />
+              </button>
               <button
                 onClick={onClose}
                 className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
@@ -380,6 +415,15 @@ export default function WarLobby({ warId, onClose }: WarLobbyProps) {
           </motion.div>
         )}
       </div>
+
+      <ChatSidebar
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        roomId={warId}
+        currentUserId={currentUserId || ""}
+        currentUserName={userData?.name || "Warrior"}
+        currentUserImage={userData?.image}
+      />
     </div>
   );
 }

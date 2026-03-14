@@ -3,6 +3,7 @@ import axios from "axios";
 export const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL as string,
   withCredentials: true,
+  timeout: 10000,
 });
 
 // Add a request interceptor

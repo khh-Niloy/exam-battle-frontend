@@ -1,20 +1,52 @@
 "use client";
-import FriendsSidebar from "@/components/home/FriendsSidebar";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { socket } from "@/lib/socket";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { User } from "lucide-react";
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
-import BattleLobby from "@/components/home/BattleLobby";
-import MapSelectorButton from "@/components/home/MapSelectorButton";
-import QuestionPaperModal from "@/components/home/QuestionPaperModal";
-import ActiveFriendsList from "@/components/home/ActiveFriendsList";
-import FriendRequestsManager from "@/components/home/FriendRequestsManager";
 import TopHeader from "@/components/shared/TopHeader";
 import { Roles } from "@/redux/features/auth/auth.types";
 import Link from "next/link";
 import { Swords } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import MapSelectorButton from "@/components/home/MapSelectorButton";
+
+const FriendsSidebar = dynamic(
+  () => import("@/components/home/FriendsSidebar"),
+);
+const QuestionPaperModal = dynamic(
+  () => import("@/components/home/QuestionPaperModal"),
+);
+const ActiveFriendsList = dynamic(
+  () => import("@/components/home/ActiveFriendsList"),
+);
+const FriendRequestsManager = dynamic(
+  () => import("@/components/home/FriendRequestsManager"),
+);
+const BattleLobby = dynamic(() => import("@/components/home/BattleLobby"));
+
+const guestSlides = [
+  {
+    id: "battles",
+    label: "1v1 Battle",
+    title: "Are you good at math? Challenge your friend to a 1v1 battle.",
+    body: "Play a live battle where you can see each other’s mistakes, correct answers, and accuracy in real time. It feels like a real exam battlefield.",
+  },
+  {
+    id: "wars",
+    label: "Exam Wars",
+    title: "Join scheduled exams with a live leaderboard.",
+    body: "Enter at the start time, finish under the timer, and watch your rank update as other students submit.",
+  },
+  {
+    id: "analytics",
+    label: "Progress",
+    title: "Track your accuracy and fix where you lose marks.",
+    body: "See what you got wrong, your accuracy percentage, and which topics you need to practice more.",
+  },
+];
 
 export default function Home() {
   const [isFriendsOpen, setIsFriendsOpen] = useState(false);
@@ -26,47 +58,66 @@ export default function Home() {
   const [isLobbyOpen, setIsLobbyOpen] = useState(false);
   const [lobbyData, setLobbyData] = useState<any>(null);
   const { data: userProfile } = useGetMeQuery(undefined);
+  const [visitorCount, setVisitorCount] = useState(0);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+
+  const isAuthenticated = Boolean(userProfile?._id);
 
   useEffect(() => {
-    if (userProfile?._id) {
-      socket.emit("join_self", userProfile._id);
-    }
+    if (!userProfile?._id) return;
 
-    socket.on("acceptInvitation", (data) => {
+    socket.emit("join_self", userProfile._id);
+
+    const handleAcceptInvitation = (data: any) => {
       setSenderData(data);
       setIsInvitationOpen(true);
-    });
+    };
 
-    socket.on("join_lobby", (data: any) => {
+    const handleJoinLobby = (data: any) => {
       setIsFriendsOpen(false);
       setIsLobbyOpen(true);
       setLobbyData(data);
       if (data.selectedPaper) {
         setSelectedPaper(data.selectedPaper);
       }
-    });
+    };
 
-    socket.on("lobby_disbanded", () => {
+    const handleLobbyDisbanded = () => {
       setIsLobbyOpen(false);
       setLobbyData(null);
-    });
+    };
 
-    socket.on("arena_updated", (data: any) => {
+    const handleArenaUpdated = (data: any) => {
       setLobbyData(data);
       if (data.selectedPaper) {
         setSelectedPaper(data.selectedPaper);
       }
-    });
+    };
+
+    socket.on("acceptInvitation", handleAcceptInvitation);
+    socket.on("join_lobby", handleJoinLobby);
+    socket.on("lobby_disbanded", handleLobbyDisbanded);
+    socket.on("arena_updated", handleArenaUpdated);
 
     return () => {
-      socket.off("acceptInvitation");
-      socket.off("join_lobby");
-      socket.off("lobby_disbanded");
-      socket.off("arena_updated");
+      socket.off("acceptInvitation", handleAcceptInvitation);
+      socket.off("join_lobby", handleJoinLobby);
+      socket.off("lobby_disbanded", handleLobbyDisbanded);
+      socket.off("arena_updated", handleArenaUpdated);
     };
-  }, [userProfile]);
+  }, [userProfile?._id]);
 
-  console.log(selectedPaper);
+  useEffect(() => {
+    const handleVisitorCount = (payload: { count: number }) => {
+      setVisitorCount(payload.count);
+    };
+
+    socket.on("visitor_count", handleVisitorCount);
+
+    return () => {
+      socket.off("visitor_count", handleVisitorCount);
+    };
+  }, []);
 
   const handleAcceptInvitation = () => {
     socket.emit("accepted", {
@@ -88,49 +139,184 @@ export default function Home() {
 
   const friend = senderData?.senderInfo;
 
+  // Guest / unauthenticated view: focused welcome + CTA + slider
+  if (!isAuthenticated) {
+    const activeSlide = guestSlides[activeSlideIndex];
+
+    return (
+      <div className="min-h-screen w-full pb-24 text-neutral-950">
+        {/* Light orange gradient mesh background (brighter toward the bottom) */}
+        <div className="pointer-events-none fixed inset-0 -z-10 bg-[var(--bg-auth-mesh)]" />
+
+        <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 pt-10 md:px-6 md:pt-12">
+          {/* Hero copy */}
+          <section className="flex flex-col gap-4 md:gap-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-neutral-600">
+              Exam practice • live competition
+            </p>
+            <h1 className="font-heading text-3xl font-black tracking-tight md:text-4xl lg:text-5xl">
+              Welcome to <span className="text-orange-600">Exam</span>{" "}
+              <span className="text-orange-950">Battle</span>
+            </h1>
+            <p className="max-w-xl text-sm leading-relaxed text-neutral-700 md:text-base">
+              Practice for exams with timed battles, scheduled wars, and clear
+              progress tracking — built for students who want results.
+            </p>
+
+            {/* Auth CTAs */}
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <Link href="/login">
+                <Button className="rounded-lg bg-orange-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-orange-600/90">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button
+                  variant="outline"
+                  className="rounded-lg border-orange-200 bg-white px-6 py-2.5 text-sm font-semibold text-orange-950 hover:bg-orange-50"
+                >
+                  Register
+                </Button>
+              </Link>
+              <span className="text-xs text-neutral-600">
+                Register in{" "}
+                <span className="font-semibold text-orange-700">
+                  under 5 seconds
+                </span>
+                .
+              </span>
+            </div>
+          </section>
+
+          {/* Single slider: text first, image below */}
+          <section
+            aria-label="What you can do on Exam Battle"
+            className="w-full"
+          >
+            <div className="mb-3 flex items-center justify-end text-[11px] font-medium text-neutral-600">
+              Live visitors:{" "}
+              <span className="ml-1 font-semibold text-orange-700">
+                {visitorCount}
+              </span>
+            </div>
+            <div className="space-y-4 rounded-2xl border border-orange-200 bg-white/80 p-4 shadow-sm backdrop-blur md:p-6">
+              {/* Text + controls */}
+              <div className="flex flex-col justify-between gap-4">
+                <header className="flex items-center justify-between gap-3">
+                  <div>
+                    <h2 className="mt-1 text-base font-semibold text-black/90 md:text-lg">
+                      {activeSlide.title}
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-9 rounded-md border-orange-200 bg-white px-3 text-sm text-orange-950 hover:bg-orange-50"
+                      onClick={() =>
+                        setActiveSlideIndex(
+                          (prev) =>
+                            (prev - 1 + guestSlides.length) %
+                            guestSlides.length,
+                        )
+                      }
+                      aria-label="Previous slide"
+                    >
+                      Prev
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-9 rounded-md border-orange-200 bg-white px-3 text-sm text-orange-950 hover:bg-orange-50"
+                      onClick={() =>
+                        setActiveSlideIndex(
+                          (prev) => (prev + 1) % guestSlides.length,
+                        )
+                      }
+                      aria-label="Next slide"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </header>
+
+                <div className="space-y-2">
+                  <p className="text-sm leading-relaxed text-neutral-700 md:text-base">
+                    {activeSlide.body}
+                  </p>
+                </div>
+
+                {/* Image / visual preview below text */}
+                <div className="relative mt-3 overflow-hidden rounded-xl bg-[radial-gradient(circle_at_20%_10%,#fb923c33,transparent_55%),radial-gradient(circle_at_80%_70%,#f9731633,transparent_60%),linear-gradient(135deg,#fff7ed,#ffffff)]">
+                  <div className="absolute inset-0 border border-orange-100/80" />
+                  <div className="relative flex min-h-[160px] items-end justify-between p-4 md:min-h-[190px] md:p-5">
+                    <span className="inline-flex items-center bg-orange-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-orange-900">
+                      {activeSlide.label}
+                    </span>
+                    <span className="text-xs text-neutral-500">
+                      {activeSlideIndex + 1} / {guestSlides.length}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-1">
+                  {guestSlides.map((slide, index) => (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      onClick={() => setActiveSlideIndex(index)}
+                      className={`h-1.5 transition-all ${
+                        index === activeSlideIndex
+                          ? "w-7 bg-orange-600"
+                          : "w-2 bg-orange-200"
+                      }`}
+                      aria-label={`Show slide ${index + 1}: ${slide.label}`}
+                      aria-current={
+                        index === activeSlideIndex ? "true" : undefined
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
+  // Authenticated lobby view (existing behavior)
   return (
     <>
       <TopHeader />
-      <div className="flex flex-col items-center px-4 pt-4 sm:px-12 pb-32 sm:pb-40 w-full min-h-screen">
+      <div className="flex flex-col items-center px-4 pt-2 sm:px-12 pb-32 sm:pb-40 w-full min-h-screen">
+        <div className="mb-2 mt-2 w-full max-w-5xl text-right text-[11px] font-medium text-neutral-600">
+          Live visitors:{" "}
+          <span className="ml-1 font-semibold text-orange-500">
+            {visitorCount}
+          </span>
+        </div>
         <AnimatePresence mode="wait">
           {isInvitationOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none p-4">
               <motion.div
-                initial={{ opacity: 0, scale: 0.5, y: 100, rotate: -5 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{
                   opacity: 1,
-                  scale: 1,
                   y: 0,
-                  rotate: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 15,
-                  },
+                  transition: { duration: 0.2, ease: "easeOut" },
                 }}
                 exit={{
                   opacity: 0,
-                  scale: 0.5,
-                  y: 100,
-                  rotate: 5,
-                  transition: { duration: 0.2 },
+                  y: 24,
+                  transition: { duration: 0.15, ease: "easeIn" },
                 }}
                 className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-3xl border border-white/20 dark:border-zinc-800 p-8 rounded-[3rem] text-center shadow-[0_40px_100px_rgba(0,0,0,0.2)] pointer-events-auto max-w-sm w-full relative overflow-hidden"
               >
                 <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#4088FD]/10 rounded-full blur-3xl" />
                 <div className="absolute -bottom-2 -left-2 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
 
-                <motion.div
-                  animate={{
-                    y: [0, -10, 0],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="relative z-10"
-                >
+                <div className="relative z-10">
                   <div className="relative w-24 h-24 mx-auto mb-6 group">
                     <div className="absolute inset-0 bg-blue-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
                     <div className="relative w-full h-full bg-gradient-to-br from-[#4088FD] to-[#3a7bd5] rounded-3xl flex items-center justify-center shadow-lg overflow-hidden border-4 border-white dark:border-zinc-800">
@@ -166,12 +352,10 @@ export default function Home() {
                   <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-8 text-sm">
                     Is challenging you to a knowledge battle! Do you accept?
                   </p>
-                </motion.div>
+                </div>
 
                 <div className="flex flex-col gap-3 relative z-10">
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => {
                       setIsInvitationOpen(false);
                       handleAcceptInvitation();
@@ -179,15 +363,13 @@ export default function Home() {
                     className="w-full bg-[#4088FD] text-white py-4 px-8 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#3a7bd5] transition-colors shadow-xl shadow-blue-500/25 active:scale-95"
                   >
                     Accept & Battle
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.95 }}
+                  </button>
+                  <button
                     onClick={() => setIsInvitationOpen(false)}
                     className="w-full bg-transparent text-zinc-400 dark:text-zinc-500 py-3 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:text-red-500 transition-colors active:scale-95"
                   >
                     Maybe later
-                  </motion.button>
+                  </button>
                 </div>
               </motion.div>
             </div>
@@ -197,12 +379,7 @@ export default function Home() {
         <main className="w-full max-w-5xl flex flex-col items-center gap-8">
           {!isLobbyOpen && <ActiveFriendsList selectedPaper={selectedPaper} />}
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            className="w-full"
-          >
+          <div className="w-full">
             {isLobbyOpen ? (
               <BattleLobby
                 player1={lobbyData.senderUserInfo}
@@ -218,25 +395,16 @@ export default function Home() {
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4">
                 {/* Join War Button for Users */}
-                {userProfile?.role !== Roles.ADMIN &&
+                {userProfile?.role !== Roles.COACHING &&
                   userProfile?.role !== Roles.SUPER_ADMIN && (
                     <Link href="/war" className="mb-4">
-                      <motion.button
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="group relative flex items-center gap-4 bg-gradient-to-br from-emerald-500 to-teal-600 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(16,185,129,0.3)] hover:shadow-[0_25px_50px_rgba(16,185,129,0.4)] transition-all overflow-hidden"
-                      >
+                      <button className="group relative flex items-center gap-4 bg-gradient-to-br from-emerald-500 to-teal-600 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(16,185,129,0.3)] hover:shadow-[0_25px_50px_rgba(16,185,129,0.4)] transition-all overflow-hidden">
                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="relative flex items-center justify-center w-10 h-10 bg-white/20 rounded-2xl backdrop-blur-md">
-                          <motion.span
-                            animate={{ rotate: [0, 15, 0, -15, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            ⚔️
-                          </motion.span>
+                          <span>⚔️</span>
                         </div>
                         <span>Join Exam War</span>
-                      </motion.button>
+                      </button>
                     </Link>
                   )}
 
@@ -247,25 +415,21 @@ export default function Home() {
                   Challenge your friends and climb the leaderboard
                 </p>
 
-                {(userProfile?.role === Roles.ADMIN ||
+                {(userProfile?.role === Roles.COACHING ||
                   userProfile?.role === Roles.SUPER_ADMIN) && (
                   <Link href="/war" className="pt-4">
-                    <motion.button
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="group relative flex items-center gap-4 bg-gradient-to-br from-indigo-600 to-purple-700 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(79,70,229,0.3)] hover:shadow-[0_25px_50px_rgba(79,70,229,0.4)] transition-all overflow-hidden"
-                    >
+                    <button className="group relative flex items-center gap-4 bg-gradient-to-br from-indigo-600 to-purple-700 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(79,70,229,0.3)] hover:shadow-[0_25px_50px_rgba(79,70,229,0.4)] transition-all overflow-hidden">
                       <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="relative flex items-center justify-center w-10 h-10 bg-white/20 rounded-2xl backdrop-blur-md">
                         <Swords className="w-5 h-5 text-white" />
                       </div>
                       <span>Manage Exam Wars</span>
-                    </motion.button>
+                    </button>
                   </Link>
                 )}
               </div>
             )}
-          </motion.div>
+          </div>
         </main>
 
         <QuestionPaperModal

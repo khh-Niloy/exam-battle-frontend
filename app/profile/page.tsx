@@ -3,6 +3,7 @@ const user_image = "https://api.dicebear.com/7.x/avataaars/svg?seed=BattleUser";
 import Image from "next/image";
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 import { Swords, Trophy, BookOpen } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
     const { data: user, isLoading } = useGetMeQuery(undefined);
@@ -33,6 +34,23 @@ export default function ProfilePage() {
                             <Trophy className="w-5 h-5" />
                         </div>
                     </div>
+                    {user?.uniqueNameCode && (
+                      <div className="mt-2 flex items-center justify-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full border border-orange-100 bg-orange-50/80 text-[10px] font-mono font-semibold tracking-wide text-orange-800">
+                          {user.uniqueNameCode}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-[10px] font-medium text-neutral-500 hover:text-orange-700 transition-colors"
+                          onClick={() => {
+                            navigator.clipboard.writeText(user.uniqueNameCode);
+                            toast.success("Code copied");
+                          }}
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    )}
                     <h1 className="text-2xl font-black text-slate-900 mb-1">
                         {user?.name}
                     </h1>

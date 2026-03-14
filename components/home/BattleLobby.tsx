@@ -2,8 +2,16 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { User, Sword, Shield, Zap, CheckCircle2 } from "lucide-react";
+import {
+  User,
+  Sword,
+  Shield,
+  Zap,
+  CheckCircle2,
+  MessageSquare,
+} from "lucide-react";
 import { socket } from "@/lib/socket";
+import ChatSidebar from "../shared/ChatSidebar";
 
 export interface LobbyPlayer {
   _id: string;
@@ -41,6 +49,7 @@ export default function BattleLobby({
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
   const [isOpponentReady, setIsOpponentReady] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     socket.on("opponent_ready", () => {
@@ -165,12 +174,31 @@ export default function BattleLobby({
         transition={{ delay: 0.6 }}
         className="mt-8 sm:mt-16 flex flex-col items-center gap-4 sm:gap-6 w-full"
       >
-        <div className="flex items-center gap-2 sm:gap-3 text-zinc-400 font-bold uppercase tracking-widest text-[8px] sm:text-xs">
-          <Zap className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-500 text-yellow-500" />
-          {isReady
-            ? "Waiting for opponent..."
-            : "Real-time Connection Established"}
+        <div className="flex flex-col items-center gap-4">
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="flex items-center gap-2 px-6 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-black uppercase tracking-widest text-[10px] hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95 border border-zinc-200 dark:border-zinc-700"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            Chat with opponent
+          </button>
+
+          <div className="flex items-center gap-2 sm:gap-3 text-zinc-400 font-bold uppercase tracking-widest text-[8px] sm:text-xs">
+            <Zap className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-500 text-yellow-500" />
+            {isReady
+              ? "Waiting for opponent..."
+              : "Real-time Connection Established"}
+          </div>
         </div>
+
+        <ChatSidebar
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          roomId={battleRoomId}
+          currentUserId={me?._id || ""}
+          currentUserName={me?.name || "Player"}
+          currentUserImage={me?.image}
+        />
 
         <div className="flex items-center gap-2 sm:gap-3">
           <button

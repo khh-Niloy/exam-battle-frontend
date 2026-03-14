@@ -34,8 +34,8 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const handleAutoLogin = async (email: string) => {
-    await onSubmit({ email, password: "password123" });
+  const handleAutoLogin = async (email: string, password?: string) => {
+    await onSubmit({ email, password: password || "password123" });
   };
 
   const onSubmit = async (data: LoginSchema) => {
@@ -58,7 +58,7 @@ export function LoginForm({
         <div className="space-y-5">
           <div className="space-y-2">
             <label
-              className="text-sm font-black text-gray-900 uppercase tracking-widest pl-1"
+              className="pl-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-900"
               htmlFor="email"
             >
               Email
@@ -69,7 +69,7 @@ export function LoginForm({
                 type="email"
                 placeholder="m@example.com"
                 required
-                className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-[#4088FD] outline-none transition-all px-6 text-base font-medium"
+                className="w-full h-12 bg-white/80 border border-orange-100 rounded-lg focus:bg-white focus:ring-2 focus:ring-orange-500/15 focus:border-orange-500 outline-none transition-all px-4 text-sm"
                 {...register("email")}
               />
             </div>
@@ -83,14 +83,14 @@ export function LoginForm({
           <div className="space-y-2">
             <div className="flex justify-between items-center px-1">
               <label
-                className="text-sm font-black text-gray-900 uppercase tracking-widest"
+                className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-900"
                 htmlFor="password"
               >
                 Password
               </label>
               <a
                 href="#"
-                className="text-xs font-bold text-[#4088FD] hover:underline"
+                className="text-xs font-bold text-orange-600 hover:underline"
               >
                 Forgot?
               </a>
@@ -100,7 +100,7 @@ export function LoginForm({
                 id="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-[#4088FD] outline-none transition-all px-6 text-base font-medium"
+                className="w-full h-12 bg-white/80 border border-orange-100 rounded-lg focus:bg-white focus:ring-2 focus:ring-orange-500/15 focus:border-orange-500 outline-none transition-all px-4 text-sm"
                 {...register("password")}
               />
               <button
@@ -127,16 +127,16 @@ export function LoginForm({
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-14 bg-[#4088FD] text-white rounded-2xl font-black text-base shadow-xl shadow-blue-500/25 hover:bg-blue-600 hover:translate-y-[-2px] transition-all active:scale-95 disabled:opacity-70"
+            className="w-full h-11 bg-orange-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-orange-500/30 hover:bg-orange-600/90 hover:-translate-y-[1px] transition-all active:scale-95 disabled:opacity-70"
           >
             {isLoading ? "Signing in..." : "Continue"}
           </Button>
 
-          <p className="text-center text-sm font-bold text-gray-400">
+          <p className="text-center text-xs font-medium text-neutral-600">
             New to ExamBattle?{" "}
             <Link
               href="/register"
-              className="text-[#4088FD] hover:underline decoration-2 underline-offset-4"
+              className="font-semibold text-orange-600 hover:underline decoration-2 underline-offset-4"
             >
               Create account
             </Link>
@@ -147,19 +147,19 @@ export function LoginForm({
               <div className="w-full border-t border-gray-100"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase font-black text-gray-300">
-              <span className="bg-white px-4 tracking-[0.3em]">
+              <span className="bg-white/80 px-4 tracking-[0.3em]">
                 Demo Access
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {demoUser.map((demo) => (
               <button
                 key={demo.name}
                 type="button"
-                onClick={() => handleAutoLogin(demo.email)}
-                className="py-3 px-2 border border-blue-50 bg-blue-50/30 text-[#4088FD] rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-[#4088FD] hover:text-white transition-all active:scale-95 shadow-sm"
+                onClick={() => handleAutoLogin(demo.email, demo.password)}
+                className="py-2 px-2 border border-orange-100 bg-orange-50/40 text-orange-700 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-orange-600 hover:text-white transition-all active:scale-95 shadow-sm"
               >
                 {demo.name}
               </button>
@@ -168,13 +168,13 @@ export function LoginForm({
         </div>
       </form>
 
-      <p className="text-xs text-center text-gray-400 font-medium leading-relaxed max-w-[300px] mx-auto">
+      <p className="mx-auto max-w-[320px] text-[11px] text-center font-medium leading-relaxed text-neutral-500">
         By continuing, you agree to our{" "}
-        <a href="#" className="underline">
+        <a href="#" className="underline underline-offset-2">
           Terms
         </a>{" "}
         and{" "}
-        <a href="#" className="underline">
+        <a href="#" className="underline underline-offset-2">
           Privacy Policy
         </a>
         .

@@ -1,6 +1,9 @@
 "use client";
 import FriendRequestsManager from "@/components/home/FriendRequestsManager";
-import { useGetFriendsQuery } from "@/redux/features/user/user.api";
+import {
+  useGetFriendsQuery,
+  useGetPendingRequestsQuery,
+} from "@/redux/features/user/user.api";
 import { User, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -9,6 +12,8 @@ import { motion } from "framer-motion";
 
 export default function FriendsPage() {
   const { data: friends, isLoading } = useGetFriendsQuery(undefined);
+  const { data: pendingRequests } =
+    useGetPendingRequestsQuery(undefined);
   const [activeTab, setActiveTab] = useState<"friends" | "requests">("friends");
   const [onlineUsers, setOnlineUsers] = useState<Record<string, string>>({});
 
@@ -55,18 +60,18 @@ export default function FriendsPage() {
   }, []);
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 pb-32 sm:pb-40">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black text-zinc-800 dark:text-white">
+    <main className="w-full max-w-5xl mx-auto px-4 pt-4 pb-32 sm:pb-40">
+      <header className="flex items-center justify-between mb-6">
+        <h1 className="text-lg font-semibold text-neutral-900">
           Friends
         </h1>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-full">
+        <div className="flex bg-neutral-100 p-1 rounded-full">
           <button
             onClick={() => setActiveTab("friends")}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
               activeTab === "friends"
-                ? "bg-white dark:bg-zinc-900 shadow-sm text-blue-600"
-                : "text-zinc-500"
+                ? "bg-white shadow-sm text-orange-700"
+                : "text-neutral-500"
             }`}
           >
             My Friends
@@ -75,14 +80,19 @@ export default function FriendsPage() {
             onClick={() => setActiveTab("requests")}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
               activeTab === "requests"
-                ? "bg-white dark:bg-zinc-900 shadow-sm text-blue-600"
-                : "text-zinc-500"
+                ? "bg-white shadow-sm text-orange-700"
+                : "text-neutral-500"
             }`}
           >
-            Requests
+            <span>Requests</span>
+            {pendingRequests?.length ? (
+              <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-orange-600 text-white text-[10px] font-black">
+                {pendingRequests.length}
+              </span>
+            ) : null}
           </button>
         </div>
-      </div>
+      </header>
 
       {activeTab === "friends" ? (
         <div className="space-y-4">
@@ -146,7 +156,7 @@ export default function FriendsPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-xs text-zinc-400 font-mono">
+                      <div className="text-xs text-neutral-500 font-mono">
                         {friend.uniqueNameCode}
                       </div>
                     </motion.div>
@@ -154,12 +164,12 @@ export default function FriendsPage() {
                 })}
             </div>
           ) : (
-            <div className="text-center py-12 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
-              <User className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
-              <p className="text-zinc-500 font-medium">No friends yet</p>
+            <div className="text-center py-10 bg-neutral-50 rounded-2xl border border-dashed border-neutral-200">
+              <User className="w-10 h-10 text-neutral-300 mx-auto mb-3" />
+              <p className="text-sm text-neutral-700 font-medium">No friends yet</p>
               <button
                 onClick={() => setActiveTab("requests")}
-                className="mt-4 text-blue-500 text-sm font-bold hover:underline"
+                className="mt-3 text-orange-600 text-sm font-semibold hover:underline"
               >
                 Find friends
               </button>
@@ -169,6 +179,6 @@ export default function FriendsPage() {
       ) : (
         <FriendRequestsManager />
       )}
-    </div>
+    </main>
   );
 }

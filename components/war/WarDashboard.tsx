@@ -1,21 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sword, Plus, Users, Calendar, Trophy, Trash2 } from "lucide-react";
+import {
+  Sword,
+  Plus,
+  Users,
+  Calendar,
+  Trophy,
+  Trash2,
+  LogOut,
+} from "lucide-react";
 import {
   useGetMyCreatedWarsQuery,
   useGetMyJoinedWarsQuery,
   useCancelWarMutation,
+  useLeaveWarMutation,
 } from "@/redux/features/war/war.api";
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
 import { WarStatus } from "@/redux/features/war/war.types";
 
-enum Roles {
-  FREE = "FREE",
-  PREMIUM = "PREMIUM",
-  ADMIN = "ADMIN",
-  SUPER_ADMIN = "SUPER_ADMIN",
-}
+import { Roles } from "@/redux/features/auth/auth.types";
 
 interface WarDashboardProps {
   onCreateWar: () => void;
@@ -32,15 +36,17 @@ export default function WarDashboard({
   const { data: createdWarsData, isLoading: loadingCreated } =
     useGetMyCreatedWarsQuery(undefined, {
       skip:
-        userData?.role !== Roles.ADMIN && userData?.role !== Roles.SUPER_ADMIN,
+        userData?.role !== Roles.COACHING &&
+        userData?.role !== Roles.SUPER_ADMIN,
     });
   const { data: joinedWarsData, isLoading: loadingJoined } =
     useGetMyJoinedWarsQuery(undefined);
 
   const [cancelWar, { isLoading: cancelling }] = useCancelWarMutation();
+  const [leaveWar, { isLoading: leaving }] = useLeaveWarMutation();
 
-  const isAdmin =
-    userData?.role === Roles.ADMIN || userData?.role === Roles.SUPER_ADMIN;
+  const isCoaching =
+    userData?.role === Roles.COACHING || userData?.role === Roles.SUPER_ADMIN;
   const createdWars = (createdWarsData as any) || [];
   const joinedWars = (joinedWarsData as any) || [];
 
@@ -57,6 +63,17 @@ export default function WarDashboard({
       await cancelWar(warId).unwrap();
     } catch (error: any) {
       alert(error?.data?.message || "Failed to cancel war");
+    }
+  };
+
+  const handleLeaveWar = async (e: React.MouseEvent, warId: string) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to leave this war?")) return;
+
+    try {
+      await leaveWar(warId).unwrap();
+    } catch (error: any) {
+      alert(error?.data?.message || "Failed to leave war");
     }
   };
 
@@ -108,7 +125,7 @@ export default function WarDashboard({
         transition={{ delay: 0.1 }}
         className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
       >
-        {isAdmin && (
+        {isCoaching && (
           <button
             onClick={onCreateWar}
             className="group relative overflow-hidden p-6 rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 transition-all"
@@ -143,8 +160,8 @@ export default function WarDashboard({
         </button>
       </motion.div>
 
-      {/* Created Wars (Admin Only) */}
-      {isAdmin && (
+      {/* Created Wars (Coaching Only) */}
+      {isCoaching && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -237,13 +254,13 @@ export default function WarDashboard({
         ) : (
           <div className="grid gap-4">
             {joinedWars.map((war: any, index: number) => (
-              <motion.button
+              <motion.div
                 key={war._id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
                 onClick={() => onViewWar(war.warId)}
-                className="w-full p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all text-left group"
+                className="w-full p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all text-left group cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -254,11 +271,23 @@ export default function WarDashboard({
                       Created by {war.creatorId.name}
                     </p>
                   </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(war.status)}`}
-                  >
-                    {war.status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2 text-right">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(war.status)}`}
+                    >
+                      {war.status}
+                    </span>
+                    {war.status === WarStatus.WAITING && (
+                      <button
+                        onClick={(e) => handleLeaveWar(e, war.warId)}
+                        disabled={leaving}
+                        className="px-3 py-2 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all flex items-center gap-1.5 border border-orange-100 dark:border-orange-900/50 text-xs font-black uppercase tracking-wider disabled:opacity-50 shadow-sm"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        Leave War
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-6 text-sm text-zinc-500">
                   <div className="flex items-center gap-2">
@@ -272,7 +301,7 @@ export default function WarDashboard({
                     <span>{formatDateTime(war.scheduledStartTime)}</span>
                   </div>
                 </div>
-              </motion.button>
+              </motion.div>
             ))}
           </div>
         )}

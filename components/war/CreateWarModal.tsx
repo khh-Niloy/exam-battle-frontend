@@ -17,7 +17,9 @@ export default function CreateWarModal({
   onClose,
   onSuccess,
 }: CreateWarModalProps) {
-  const [activeTab, setActiveTab] = useState<"existing" | "admin">("existing");
+  const [activeTab, setActiveTab] = useState<"existing" | "coaching">(
+    "existing",
+  );
   const [selectedPaperId, setSelectedPaperId] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(10);
   const [scheduledTime, setScheduledTime] = useState("");
@@ -40,14 +42,14 @@ export default function CreateWarModal({
     if (typeof paper.creatorId === "string") return true;
 
     const role = paper.creatorId?.role;
-    return role !== "ADMIN" && role !== "SUPER_ADMIN";
+    return role !== "COACHING" && role !== "SUPER_ADMIN";
   });
 
-  const adminPapers = questionPapers.filter((paper: any) => {
+  const coachingPapers = questionPapers.filter((paper: any) => {
     if (!paper.creatorId || typeof paper.creatorId === "string") return false;
 
     const role = paper.creatorId?.role;
-    return role === "ADMIN" || role === "SUPER_ADMIN";
+    return role === "COACHING" || role === "SUPER_ADMIN";
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,7 +102,8 @@ export default function CreateWarModal({
     return now.toISOString().slice(0, 16);
   };
 
-  const displayPapers = activeTab === "existing" ? existingPapers : adminPapers;
+  const displayPapers =
+    activeTab === "existing" ? existingPapers : coachingPapers;
 
   return (
     <AnimatePresence>
@@ -163,16 +166,16 @@ export default function CreateWarModal({
                 )}
               </button>
               <button
-                onClick={() => setActiveTab("admin")}
+                onClick={() => setActiveTab("coaching")}
                 className={`flex-1 py-4 px-6 font-bold text-sm transition-all relative ${
-                  activeTab === "admin"
+                  activeTab === "coaching"
                     ? "text-blue-600 dark:text-blue-400"
                     : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                 }`}
               >
                 <FileText className="w-4 h-4 inline mr-2" />
-                Admin-Created Papers
-                {activeTab === "admin" && (
+                Coaching-Created Papers
+                {activeTab === "coaching" && (
                   <motion.div
                     layoutId="activeTab"
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
