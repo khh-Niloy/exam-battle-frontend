@@ -21,6 +21,7 @@ import { ReduxProvider } from "@/components/provider/ReduxProvider";
 import { Toaster } from "react-hot-toast";
 import BottomNav from "@/components/shared/BottomNav";
 import TopHeader from "@/components/shared/TopHeader";
+import VisitorPresence from "@/components/shared/VisitorPresence";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReduxProvider>
+          <VisitorPresence />
           <main className="min-h-screen pb-32">{children}</main>
           <BottomNav />
           <Toaster />

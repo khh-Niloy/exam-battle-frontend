@@ -15,9 +15,9 @@ export default function CoachingPage() {
 
   if (userLoading || coachingLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
+      <main className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </main>
     );
   }
 
@@ -27,30 +27,30 @@ export default function CoachingPage() {
   if (isCoachingRole) {
     if (!coaching) {
       return (
-        <div className="container mx-auto px-4 py-8">
+        <main className="mx-auto flex w-full max-w-5xl px-4 pt-4 pb-32 sm:pb-40">
           <CreateCoachingForm />
-        </div>
+        </main>
       );
     }
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="mx-auto flex w-full max-w-5xl px-4 pt-4 pb-32 sm:pb-40">
         <CoachingDashboard coaching={coaching} />
-      </div>
+      </main>
     );
   }
 
   // Regular user (Student)
   if (!coaching) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="mx-auto flex w-full max-w-5xl px-4 pt-4 pb-32 sm:pb-40">
         <JoinCoachingForm />
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="mx-auto flex w-full max-w-5xl px-4 pt-4 pb-32 sm:pb-40">
       <StudentCoachingView coaching={coaching} />
-    </div>
+    </main>
   );
 }

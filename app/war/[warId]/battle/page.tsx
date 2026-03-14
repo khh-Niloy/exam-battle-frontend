@@ -193,11 +193,38 @@ export default function WarBattlePage({
   if (isWarLoading || isPaperLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-16 h-16 animate-spin text-blue-600" />
-          <p className="text-blue-600 font-black uppercase tracking-widest animate-pulse">
-            Loading War Zone...
-          </p>
+        <div className="w-full max-w-5xl px-4 space-y-6">
+          <div className="h-6 w-40 bg-slate-200 rounded-full animate-pulse" />
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl border border-slate-100 p-4 space-y-3 animate-pulse"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-slate-100" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-slate-100 rounded w-3/4" />
+                      <div className="h-4 bg-slate-100 rounded w-1/2" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {[1, 2, 3, 4].map((j) => (
+                      <div
+                        key={j}
+                        className="h-10 rounded-xl bg-slate-50 border border-slate-100"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-4 hidden lg:block">
+              <div className="h-48 bg-white rounded-2xl border border-slate-100 animate-pulse" />
+              <div className="h-32 bg-white rounded-2xl border border-slate-100 animate-pulse" />
+            </div>
+          </div>
         </div>
       </div>
     );

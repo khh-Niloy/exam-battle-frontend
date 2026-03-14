@@ -59,7 +59,7 @@ export function RegisterForm({
         <div className="space-y-5">
           <div className="space-y-2">
             <label
-              className="text-sm font-black text-gray-900 uppercase tracking-widest pl-1"
+              className="pl-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-900"
               htmlFor="name"
             >
               Full Name
@@ -70,7 +70,7 @@ export function RegisterForm({
                 type="text"
                 placeholder="John Doe"
                 required
-                className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-[#4088FD] outline-none transition-all px-6 text-base font-medium"
+                className="w-full h-12 bg-white/80 border border-orange-100 rounded-lg focus:bg-white focus:ring-2 focus:ring-orange-500/15 focus:border-orange-500 outline-none transition-all px-4 text-sm"
                 {...register("name")}
               />
             </div>
@@ -83,7 +83,7 @@ export function RegisterForm({
 
           <div className="space-y-2">
             <label
-              className="text-sm font-black text-gray-900 uppercase tracking-widest pl-1"
+              className="pl-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-900"
               htmlFor="email"
             >
               Email
@@ -94,7 +94,7 @@ export function RegisterForm({
                 type="email"
                 placeholder="m@example.com"
                 required
-                className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-[#4088FD] outline-none transition-all px-6 text-base font-medium"
+                className="w-full h-12 bg-white/80 border border-orange-100 rounded-lg focus:bg-white focus:ring-2 focus:ring-orange-500/15 focus:border-orange-500 outline-none transition-all px-4 text-sm"
                 {...register("email")}
               />
             </div>
@@ -107,7 +107,7 @@ export function RegisterForm({
 
           <div className="space-y-2">
             <label
-              className="text-sm font-black text-gray-900 uppercase tracking-widest pl-1"
+              className="pl-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-900"
               htmlFor="password"
             >
               Password
@@ -117,7 +117,7 @@ export function RegisterForm({
                 id="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-[#4088FD] outline-none transition-all px-6 text-base font-medium"
+                className="w-full h-12 bg-white/80 border border-orange-100 rounded-lg focus:bg-white focus:ring-2 focus:ring-orange-500/15 focus:border-orange-500 outline-none transition-all px-4 text-sm"
                 {...register("password")}
               />
               <button
@@ -144,16 +144,16 @@ export function RegisterForm({
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-14 bg-[#4088FD] text-white rounded-2xl font-black text-base shadow-xl shadow-blue-500/25 hover:bg-blue-600 hover:translate-y-[-2px] transition-all active:scale-95 disabled:opacity-70"
+            className="w-full h-11 bg-orange-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-orange-500/30 hover:bg-orange-600/90 hover:-translate-y-[1px] transition-all active:scale-95 disabled:opacity-70"
           >
             {isLoading ? "Creating account..." : "Start your journey"}
           </Button>
 
-          <p className="text-center text-sm font-bold text-gray-400">
+          <p className="text-center text-xs font-medium text-neutral-600">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-[#4088FD] hover:underline decoration-2 underline-offset-4"
+              className="font-semibold text-orange-600 hover:underline decoration-2 underline-offset-4"
             >
               Login here
             </Link>

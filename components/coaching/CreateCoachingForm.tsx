@@ -32,25 +32,25 @@ export default function CreateCoachingForm() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-md mx-auto bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-zinc-200 dark:border-zinc-800 shadow-xl"
+      className="w-full max-w-md mx-auto rounded-2xl border border-neutral-200 bg-white px-6 py-6 shadow-sm"
     >
-      <div className="flex flex-col items-center mb-8">
-        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4">
-          <GraduationCap className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+      <div className="mb-6 space-y-2">
+        <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50">
+          <GraduationCap className="h-5 w-5 text-orange-600" />
         </div>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-          Setup Your Coaching
+        <h1 className="text-lg font-semibold text-neutral-900">
+          Set up your coaching
         </h1>
-        <p className="text-zinc-500 text-center mt-2">
-          Create your space for mentoring and managing students.
+        <p className="text-xs text-neutral-600">
+          Create a coaching space to organise exams and track student progress.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Coaching Name</Label>
+          <Label htmlFor="name">Coaching name</Label>
           <Input
             id="name"
             placeholder="e.g. Master Minds Coaching"
@@ -61,7 +61,7 @@ export default function CreateCoachingForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description (Optional)</Label>
+          <Label htmlFor="description">Description (optional)</Label>
           <Textarea
             id="description"
             placeholder="Tell your students what this coaching is about..."
@@ -73,7 +73,7 @@ export default function CreateCoachingForm() {
 
         <Button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 font-bold"
+          className="w-full h-11 rounded-lg bg-orange-600 text-sm font-semibold text-white hover:bg-orange-600/90"
           disabled={isLoading}
         >
           {isLoading ? (

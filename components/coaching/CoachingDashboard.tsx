@@ -1,6 +1,4 @@
 "use client";
-
-import { motion } from "framer-motion";
 import {
   Users,
   FileText,
@@ -43,75 +41,75 @@ export default function CoachingDashboard({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white flex items-center gap-3">
-            <LayoutDashboard className="w-8 h-8 text-blue-600" />
+          <h1 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
+            <LayoutDashboard className="w-5 h-5 text-orange-600" />
             {coaching.name}
           </h1>
-          <p className="text-zinc-500 mt-1">
+          <p className="mt-1 text-xs text-neutral-600">
             {coaching.description || "No description set"}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-zinc-100 dark:bg-zinc-800 px-4 py-2 rounded-xl flex items-center gap-3 border border-zinc-200 dark:border-zinc-700">
-            <span className="text-sm font-medium text-zinc-500 uppercase tracking-wider">
+          <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2">
+            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-600">
               Join Code:
             </span>
-            <span className="text-lg font-mono font-bold text-blue-600">
+            <span className="font-mono text-sm font-semibold text-orange-700">
               {coaching.joinCode}
             </span>
             <button
               onClick={copyJoinCode}
-              className="text-zinc-400 hover:text-blue-600 transition-colors"
+              className="text-xs font-medium text-neutral-500 hover:text-orange-700 transition-colors"
             >
               <Copy className="w-4 h-4" />
             </button>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-11">
+          <Button className="h-9 rounded-lg bg-orange-600 px-4 text-xs font-semibold text-white hover:bg-orange-600/90">
             <Share2 className="w-4 h-4 mr-2" />
             Invite
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
           icon={<Users className="w-6 h-6 text-orange-500" />}
           label="Total Students"
           value={coaching.students?.length || 0}
-          color="bg-orange-50 dark:bg-orange-950/20"
+          color="bg-orange-50"
         />
         <StatCard
-          icon={<FileText className="w-6 h-6 text-blue-500" />}
+          icon={<FileText className="w-6 h-6 text-neutral-700" />}
           label="Question Papers"
           value="0"
-          color="bg-blue-50 dark:bg-blue-950/20"
+          color="bg-neutral-50"
         />
         <StatCard
-          icon={<LayoutDashboard className="w-6 h-6 text-purple-500" />}
+          icon={<LayoutDashboard className="w-6 h-6 text-neutral-700" />}
           label="Active Exams"
           value="0"
-          color="bg-purple-50 dark:bg-purple-950/20"
+          color="bg-neutral-50"
         />
-      </div>
+      </section>
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left Column - Students list */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200 dark:border-zinc-800">
+        <div className="space-y-6 lg:col-span-2">
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Users className="w-5 h-5 text-zinc-400" />
-                Recent Students
+              <h2 className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
+                <Users className="w-4 h-4 text-neutral-500" />
+                Students
               </h2>
               <Button
                 variant="ghost"
-                className="text-blue-600 font-bold hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                className="h-8 px-3 text-xs font-medium text-neutral-600 hover:bg-neutral-100"
               >
                 View All
               </Button>
@@ -122,29 +120,29 @@ export default function CoachingDashboard({
                 coaching.students.map((item: any) => (
                   <div
                     key={item.studentId?._id}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800"
+                    className="flex items-center justify-between rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center font-bold text-blue-600">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-700">
                         {item.studentId?.name?.[0] || "S"}
                       </div>
                       <div>
-                        <p className="font-bold text-zinc-900 dark:text-zinc-100">
+                        <p className="text-sm font-semibold text-neutral-900">
                           {item.studentId?.name || "Unknown Student"}
                         </p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-[11px] text-neutral-600">
                           {item.studentId?.email}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs bg-zinc-200 dark:bg-zinc-700 px-2 py-1 rounded-md text-zinc-600 dark:text-zinc-400">
+                      <span className="rounded-md bg-neutral-100 px-2 py-1 text-[11px] text-neutral-600">
                         Joined {new Date(item.joinedAt).toLocaleDateString()}
                       </span>
                       <button
                         onClick={() => handleRemoveStudent(item.studentId?._id)}
                         disabled={isRemoving}
-                        className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
+                        className="rounded-md p-1.5 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
                         title="Remove Student"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -153,27 +151,27 @@ export default function CoachingDashboard({
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 text-zinc-500">
+                <div className="py-10 text-center text-sm text-neutral-600">
                   No students joined yet. Share your code to get started!
                 </div>
               )}
             </div>
-          </div>
+          </section>
         </div>
 
         {/* Right Column - Quick Actions & Info */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-zinc-400" />
-              Quick Actions
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-neutral-900">
+              <PlusCircle className="w-4 h-4 text-neutral-500" />
+              Quick actions
             </h2>
             <div className="space-y-3">
               <Link href="/creation" className="block">
                 <ActionButton
                   icon={<PlusCircle />}
                   label="Create New Paper"
-                  color="bg-blue-600"
+                  color="bg-orange-600"
                 />
               </Link>
               <Link href="/creation" className="block">
@@ -186,42 +184,39 @@ export default function CoachingDashboard({
               <ActionButton
                 icon={<Settings />}
                 label="Coaching Settings"
-                color="bg-zinc-200 dark:bg-zinc-800"
-                textColor="text-zinc-900 dark:text-white"
+                color="bg-neutral-100"
+                textColor="text-neutral-900"
               />
             </div>
-          </div>
+          </section>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
 
 function StatCard({ icon, label, value, color }: any) {
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      className={`p-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 ${color} shadow-sm`}
-    >
+    <div className={`p-4 rounded-2xl border border-neutral-200 ${color} shadow-sm`}>
       <div className="flex items-center gap-4">
-        <div className="p-3 rounded-2xl bg-white dark:bg-zinc-900 shadow-sm">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
           {icon}
         </div>
         <div>
-          <p className="text-sm font-medium text-zinc-500">{label}</p>
-          <p className="text-2xl font-black text-zinc-900 dark:text-white">
+          <p className="text-xs font-medium text-neutral-600">{label}</p>
+          <p className="text-xl font-semibold text-neutral-900">
             {value}
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 function ActionButton({ icon, label, color, textColor = "text-white" }: any) {
   return (
     <div
-      className={`w-full flex items-center gap-3 p-4 rounded-2xl ${color} ${textColor} font-bold transition-transform active:scale-95 cursor-pointer`}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${color} ${textColor} text-sm font-semibold cursor-pointer`}
     >
       {icon}
       <span>{label}</span>

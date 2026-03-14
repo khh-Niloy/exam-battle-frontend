@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import CreateWarModal from "@/components/war/CreateWarModal";
-import JoinWarModal from "@/components/war/JoinWarModal";
-import WarDashboard from "@/components/war/WarDashboard";
-import WarLobby from "@/components/war/WarLobby";
+import dynamic from "next/dynamic";
 import TopHeader from "@/components/shared/TopHeader";
+
+const CreateWarModal = dynamic(
+  () => import("@/components/war/CreateWarModal"),
+);
+const JoinWarModal = dynamic(() => import("@/components/war/JoinWarModal"));
+const WarDashboard = dynamic(() => import("@/components/war/WarDashboard"));
+const WarLobby = dynamic(() => import("@/components/war/WarLobby"));
 
 export default function WarPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
