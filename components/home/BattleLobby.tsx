@@ -110,7 +110,7 @@ export default function BattleLobby({
         onClick={() => {
           onSelectArena?.();
         }}
-        className="cursor-pointer mb-6 sm:mb-12 text-center group relative w-full h-[100px] bg-white rounded-3xl overflow-hidden shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-stretch transition-all hover:shadow-[0_20px_40px_-10px_rgba(64,136,253,0.15)] hover:border-blue-100"
+        className="cursor-pointer mb-6 sm:mb-12 text-center group relative w-full h-[70px] bg-white rounded-xl overflow-hidden shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-stretch transition-all hover:shadow-[0_20px_40px_-10px_rgba(64,136,253,0.15)] hover:border-blue-100"
       >
         <div className="relative flex-1 px-5 flex flex-col justify-center gap-0.5 text-center">
           <h2 className="text-lg font-black text-zinc-900 uppercase italic tracking-tighter leading-tight group-hover:text-blue-600 transition-colors">
@@ -172,7 +172,7 @@ export default function BattleLobby({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="mt-8 sm:mt-16 flex flex-col items-center gap-4 sm:gap-6 w-full"
+        className="mt-5 sm:mt-16 flex flex-col items-center gap-4 sm:gap-6 w-full"
       >
         <div className="flex flex-col items-center gap-4">
           <button
@@ -203,17 +203,25 @@ export default function BattleLobby({
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleReady}
-            className={`group relative w-full sm:w-auto ${isReady ? "bg-orange-500" : "bg-[#4088FD]"} text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl sm:shadow-2xl shadow-blue-500/25`}
+            disabled={!selectedPaper}
+            className={`w-full sm:w-auto rounded-2xl px-8 sm:px-12 py-3 sm:py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] ${
+              !selectedPaper
+                ? "bg-neutral-200 text-neutral-500 cursor-not-allowed"
+                : isReady
+                  ? "bg-orange-500 text-white"
+                  : "bg-neutral-900 text-white"
+            }`}
           >
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            <span className="relative z-10">
-              {isReady ? "Cancel Ready" : "Ready"}
-            </span>
+            {!selectedPaper
+              ? "Select arena to ready"
+              : isReady
+                ? "Cancel"
+                : "Ready"}
           </button>
 
           <button
             onClick={leaveTeam}
-            className="group relative w-full sm:w-auto bg-red-400 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl sm:shadow-2xl shadow-red-500/25"
+            className="group relative w-full sm:w-auto bg-red-400 text-white px-8 sm:px-12 py-3  rounded-2xl sm:rounded-[2rem] font-black text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 "
           >
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             <span className="relative z-10">Leave</span>
@@ -301,9 +309,9 @@ function PlayerCard({
             <span
               className={`w-1 h-1 sm:w-2 sm:h-2 rounded-full ${isBlue ? "bg-blue-500" : "bg-red-500"} animate-pulse`}
             />
-            <p className="text-zinc-400 font-bold uppercase tracking-widest text-[6px] sm:text-[10px] truncate max-w-[80%]">
+            <p className="text-zinc-400 font-bold uppercase tracking-widest text-[8px] sm:text-[10px] truncate max-w-[80%]">
               {player?.studentInfo?.class
-                ? `Cl ${player?.studentInfo?.class} • ${player?.studentInfo?.group}`
+                ? `Class ${player?.studentInfo?.class} • ${player?.studentInfo?.group}`
                 : "Challenger"}
             </p>
           </div>

@@ -296,85 +296,75 @@ export default function Home() {
             {visitorCount}
           </span>
         </div>
-        <AnimatePresence mode="wait">
-          {isInvitationOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none p-4">
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.2, ease: "easeOut" },
-                }}
-                exit={{
-                  opacity: 0,
-                  y: 24,
-                  transition: { duration: 0.15, ease: "easeIn" },
-                }}
-                className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-3xl border border-white/20 dark:border-zinc-800 p-8 rounded-[3rem] text-center shadow-[0_40px_100px_rgba(0,0,0,0.2)] pointer-events-auto max-w-sm w-full relative overflow-hidden"
-              >
-                <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#4088FD]/10 rounded-full blur-3xl" />
-                <div className="absolute -bottom-2 -left-2 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
-
-                <div className="relative z-10">
-                  <div className="relative w-24 h-24 mx-auto mb-6 group">
-                    <div className="absolute inset-0 bg-blue-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all" />
-                    <div className="relative w-full h-full bg-gradient-to-br from-[#4088FD] to-[#3a7bd5] rounded-3xl flex items-center justify-center shadow-lg overflow-hidden border-4 border-white dark:border-zinc-800">
-                      {friend?.image ? (
-                        <Image
-                          src={friend.image}
-                          alt={friend.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <User className="w-10 h-10 text-white" />
-                      )}
+        {isInvitationOpen && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+            <div className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white px-6 py-6 shadow-xl">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-neutral-500">
+                  Battle request
+                </div>
+                <button
+                  type="button"
+                  className="text-xs text-neutral-500 hover:text-neutral-800"
+                  onClick={() => setIsInvitationOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+              <div className="flex gap-4 mb-4">
+                <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100">
+                  {friend?.image ? (
+                    <Image
+                      src={friend.image}
+                      alt={friend.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <User className="h-6 w-6 text-neutral-400" />
                     </div>
-                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-2xl border-4 border-white dark:border-zinc-900 flex items-center justify-center">
-                      <span className="text-xs">⚔️</span>
-                    </div>
-                  </div>
-
-                  <h1 className="text-[10px] font-black text-[#4088FD] uppercase tracking-[0.4em] mb-2">
-                    Battle Request
-                  </h1>
-                  <h2 className="text-2xl font-black text-zinc-800 dark:text-white mb-1">
-                    {friend?.name || "Player One"}
-                  </h2>
+                  )}
+                </div>
+                <div className="flex flex-col justify-center gap-1">
+                  <p className="text-sm font-semibold text-neutral-900">
+                    {friend?.name || "Player"}
+                  </p>
                   {friend?.studentInfo && (
-                    <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-6">
-                      Class {friend.studentInfo.class} •{" "}
-                      {friend.studentInfo.group}
+                    <p className="text-[11px] text-neutral-600">
+                      Class {friend.studentInfo.class}
+                      {friend.studentInfo.group
+                        ? ` · ${friend.studentInfo.group}`
+                        : null}
                     </p>
                   )}
-
-                  <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-8 text-sm">
-                    Is challenging you to a knowledge battle! Do you accept?
-                  </p>
                 </div>
-
-                <div className="flex flex-col gap-3 relative z-10">
-                  <button
-                    onClick={() => {
-                      setIsInvitationOpen(false);
-                      handleAcceptInvitation();
-                    }}
-                    className="w-full bg-[#4088FD] text-white py-4 px-8 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#3a7bd5] transition-colors shadow-xl shadow-blue-500/25 active:scale-95"
-                  >
-                    Accept & Battle
-                  </button>
-                  <button
-                    onClick={() => setIsInvitationOpen(false)}
-                    className="w-full bg-transparent text-zinc-400 dark:text-zinc-500 py-3 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:text-red-500 transition-colors active:scale-95"
-                  >
-                    Maybe later
-                  </button>
-                </div>
-              </motion.div>
+              </div>
+              <p className="mb-5 text-sm text-neutral-700">
+                is challenging you to a battle. Start a live 1v1 match now?
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsInvitationOpen(false);
+                    handleAcceptInvitation();
+                  }}
+                  className="w-full rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600/90"
+                >
+                  Accept &amp; battle
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsInvitationOpen(false)}
+                  className="w-full rounded-lg px-4 py-2 text-xs font-medium text-neutral-500 hover:text-neutral-800"
+                >
+                  Maybe later
+                </button>
+              </div>
             </div>
-          )}
-        </AnimatePresence>
+          </div>
+        )}
 
         <main className="w-full max-w-5xl flex flex-col items-center gap-8">
           {!isLobbyOpen && <ActiveFriendsList selectedPaper={selectedPaper} />}

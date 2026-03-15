@@ -12,9 +12,11 @@ import {
   Trophy,
   Target,
   Hash,
+  ListOrdered,
   Activity,
   Loader2,
   Home,
+  LogOut,
 } from "lucide-react";
 import { socket } from "@/lib/socket";
 import { useGetMeQuery } from "@/redux/features/auth/auth.api";
@@ -240,6 +242,8 @@ export default function BattlePage({
     setViewingExplanations(true);
   };
 
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -269,22 +273,35 @@ export default function BattlePage({
   }
 
   return (
-    <div className="min-h-screen text-slate-900 pb-20">
-      {/* Premium Sticky Header - Symmetric Compact Style */}
-      <header className="sticky w-full top-0 z-50">
-        <div className="w-full mx-auto px-4 py-2 sm:py-3">
-          <div className="flex items-center justify-between gap-4 md:gap-8">
+    <div className="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-text-primary)] pb-20">
+      {/* Live Battle Header - Arena status bar */}
+      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg-base)]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-text-secondary)]">
+              Live battle
+            </span>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--color-battle)]/60 bg-transparent px-3 py-1 text-[11px] font-medium text-[var(--color-battle)] hover:bg-[var(--color-battle)]/10"
+              onClick={() => setShowLeaveConfirm(true)}
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Leave battle
+            </button>
+          </div>
+          <div className="flex items-stretch justify-between gap-3 md:gap-4">
             {/* Player 1 (You) Stats */}
-            <div className="w-1/2 flex items-center justify-start gap-4">
-              <div className="hidden sm:flex w-10 h-10 rounded-xl bg-blue-600 items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                <Sword className="w-5 h-5" />
+            <div className="flex w-1/2 items-center gap-3 md:gap-4">
+              <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-primary)] text-white shadow-md shadow-[var(--color-primary)]/30 sm:flex">
+                <Sword className="h-5 w-5" />
               </div>
-              <div className="flex-1 bg-white border border-blue-100 rounded-2xl p-2 px-4 shadow-sm">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-black text-blue-600 uppercase">
+              <div className="flex-1 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2 shadow-sm">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--color-primary)]">
                     You
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400">
+                  <span className="text-[11px] font-medium text-[var(--color-text-secondary)]">
                     {stats.accuracy}% Accuracy
                   </span>
                 </div>
@@ -292,53 +309,53 @@ export default function BattlePage({
                   <CompactStat
                     icon={CheckCircle2}
                     value={stats.correct}
-                    color="text-emerald-500"
+                    color="text-emerald-400"
                   />
                   <CompactStat
                     icon={XCircle}
                     value={stats.wrong}
-                    color="text-rose-500"
+                    color="text-rose-400"
                   />
                   <CompactStat
-                    text="Left"
+                    icon={ListOrdered}
                     value={stats.left}
-                    color="text-slate-400"
+                    color="text-[var(--color-text-secondary)]"
                   />
                 </div>
               </div>
             </div>
 
             {/* Player 2 (Opponent) Stats */}
-            <div className="w-1/2 flex items-center justify-end gap-4">
-              <div className="flex-1 bg-white border border-rose-100 rounded-2xl p-2 px-4 shadow-sm text-right">
-                <div className="flex items-center justify-between mb-1 flex-row-reverse">
-                  <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">
+            <div className="flex w-1/2 items-center justify-end gap-3 md:gap-4">
+              <div className="flex-1 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2 text-right shadow-sm">
+                <div className="mb-1 flex flex-row-reverse items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--color-battle)]">
                     Opponent
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400">
+                  <span className="text-[11px] font-medium text-[var(--color-text-secondary)]">
                     {opponentProgress.accuracy}% Accuracy
                   </span>
                 </div>
-                <div className="flex items-center gap-4 flex-row-reverse">
+                <div className="flex flex-row-reverse items-center gap-4">
                   <CompactStat
                     icon={CheckCircle2}
                     value={opponentProgress.correct}
-                    color="text-emerald-500"
+                    color="text-emerald-400"
                   />
                   <CompactStat
                     icon={XCircle}
                     value={opponentProgress.wrong}
-                    color="text-rose-500"
+                    color="text-rose-400"
                   />
                   <CompactStat
-                    text="Left"
+                    icon={ListOrdered}
                     value={opponentProgress.left}
-                    color="text-slate-400"
+                    color="text-[var(--color-text-secondary)]"
                   />
                 </div>
               </div>
-              <div className="hidden sm:flex w-10 h-10 rounded-xl bg-rose-500 items-center justify-center text-white shadow-lg shadow-rose-500/20">
-                <Shield className="w-5 h-5" />
+              <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-battle)] text-white shadow-md shadow-[var(--color-battle)]/30 sm:flex">
+                <Shield className="h-5 w-5" />
               </div>
             </div>
           </div>
@@ -350,10 +367,8 @@ export default function BattlePage({
         {questions.map((q: any, qIndex: number) => (
           <motion.div
             key={q._id || qIndex}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            className={`bg-white`}
+            initial={false}
+            className="bg-white"
           >
             <div className="flex items-start gap-4 mb-6">
               <span className="flex-shrink-0 w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-sm font-black">
@@ -426,16 +441,12 @@ export default function BattlePage({
             </div>
 
             {viewingExplanations && q.explanation && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="mt-6 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 text-sm leading-relaxed text-slate-600 overflow-hidden"
-              >
+              <div className="mt-6 rounded-2xl border border-neutral-100 bg-neutral-50 p-5 text-sm leading-relaxed text-slate-600">
                 <span className="block text-xs font-black text-blue-500 uppercase tracking-widest mb-2">
                   Explanation
                 </span>
                 {q.explanation}
-              </motion.div>
+              </div>
             )}
           </motion.div>
         ))}
@@ -444,11 +455,7 @@ export default function BattlePage({
 
         {/* Waiting Overlay: When I'm done but opponent isn't */}
         {stats.left === 0 && !isBattleOver && !viewingExplanations && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-10 bg-white rounded-[3rem] border border-blue-100 shadow-2xl text-center space-y-6"
-          >
+          <div className="space-y-4 rounded-2xl border border-neutral-100 bg-white p-8 text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-blue-50 text-blue-500 shadow-inner">
               <Loader2 className="w-10 h-10 animate-spin" />
             </div>
@@ -460,7 +467,7 @@ export default function BattlePage({
                 Waiting for opponent to finish...
               </p>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Final Modal: When both are done */}
@@ -477,24 +484,58 @@ export default function BattlePage({
         )}
         {/* Back to Lobby Button (Visible when viewing explanations) */}
         {viewingExplanations && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-6 left-0 right-0 p-4 flex justify-center z-50 pointer-events-none"
-          >
+          <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center p-4 pointer-events-none">
             <button
               onClick={() => (window.location.href = "/")}
-              className="pointer-events-auto bg-white text-slate-900 px-8 py-4 rounded-full font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 border border-slate-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="pointer-events-auto flex items-center gap-2 rounded-full border border-slate-200 bg-white px-8 py-3 text-xs font-black uppercase tracking-widest text-slate-900 shadow-md"
             >
               <Home className="w-4 h-4" />
               Back to Lobby
             </button>
-          </motion.div>
+          </div>
         )}
       </main>
 
       {/* Visual Decor */}
-      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.05),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.05),transparent_40%)]" />
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.03),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.03),transparent_40%)]" />
+
+      {/* Leave battle confirmation */}
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white px-6 py-5 shadow-xl space-y-4">
+            <h2 className="text-sm font-semibold text-neutral-900">
+              Leave this battle?
+            </h2>
+            <p className="text-sm text-neutral-700">
+              Your opponent will be notified that you left. You can always start a new battle from the lobby.
+            </p>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+                onClick={() => setShowLeaveConfirm(false)}
+              >
+                Stay
+              </button>
+              <button
+                type="button"
+                className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600/90"
+                onClick={() => {
+                  if (me?._id && params.battleRoomId) {
+                    socket.emit("leave_battle", {
+                      userId: me._id,
+                      battleRoomId: params.battleRoomId,
+                    });
+                  }
+                  window.location.href = "/";
+                }}
+              >
+                Leave battle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
